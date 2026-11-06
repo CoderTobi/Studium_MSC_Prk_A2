@@ -163,6 +163,93 @@
 
         clearBtn.onclick = clearList;
 
+        const OLLAMA_URL = 'http://localhost:11434';
+
+        function setAiStatus(message, isError = false) {
+            aiStatus.textContent = message;
+            aiStatus.classList.remove('hidden', 'text-gray-500', 'text-red-500');
+            aiStatus.classList.add(isError ? 'text-red-500' : 'text-gray-500');
+        }
+
+        async function askOllama() {
+            const prompt = aiPromptInput.value.trim();
+
+            if (!prompt) {
+                setAiStatus('Enter a recipe or meal first.', true);
+                return;
+            }
+
+            aiBtn.disabled = true;
+            aiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            setAiStatus('Asking AI for ingredients...');
+
+            try {
+                const modelsResponse = await fetch(`${OLLAMA_URL}/api/tags`);
+
+                if (!modelsResponse.ok) {
+                    throw new Error('Could not connect to Ollama.');
+                }
+
+                const models = await modelsResponse.json();
+                const model = models.models?.[0]?.name;
+
+                if (!model) {
+                    throw new Error('No Ollama model is installed.');
+                }
+
+                const response = await fetch(`${OLLAMA_URL}/api/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model,
+                        stream: false,
+                        format: 'json',
+                        prompt: `Extract the shopping ingredients needed for this request:
+
+        "${prompt}"
+
+        Return only valid JSON in this format:
+        {"ingredients":["ingredient 1","ingredient 2"]}
+
+        Do not include explanations or cooking instructions.`
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ollama failed to process the request.');
+                }
+
+                const result = await response.json();
+                const parsed = JSON.parse(result.response);
+                const ingredients = Array.isArray(parsed.ingredients)
+                    ? parsed.ingredients.filter(
+                        ingredient => typeof ingredient === 'string' && ingredient.trim()
+                    )
+                    : [];
+
+                if (!ingredients.length) {
+                    throw new Error('No ingredients were found.');
+                }
+
+                ingredients.forEach(addItem);
+                aiPromptInput.value = '';
+                setAiStatus(`${ingredients.length} ingredient${ingredients.length === 1 ? '' : 's'} added.`);
+            } catch (error) {
+                setAiStatus(error.message || 'Unable to contact Ollama.', true);
+            } finally {
+                aiBtn.disabled = false;
+                aiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        aiBtn.onclick = askOllama;
+
+        aiPromptInput.onkeypress = (event) => {
+            if (event.key === 'Enter') {
+                askOllama();
+            }
+        };
+
         // Initial render
         renderList();
     </script>
