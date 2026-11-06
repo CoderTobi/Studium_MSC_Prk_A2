@@ -165,24 +165,6 @@
 
         // Initial render
         renderList();
-
-        async function askAI() {
-            const prompt = aiPromptInput.value.trim();
-            if (!prompt) return;
-
-            aiBtn.disabled = true;
-            aiBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            aiStatus.textContent = 'Thinking...';
-            aiStatus.classList.remove('hidden');
-
-            try {
-                const response = await fetch('http://localhost:11434/api/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model: 'llama3', // Defaulting to llama3, common in Ollama
-                        prompt: `Extract a shopping list of ingredients from the following request: "${prompt}". 
-                        Return ONLY a comma-separated list of ingredients. Do not include any other text, formatting, or explanation. 
-                        Example output: "flour, eggs, milk, sugar"`,
+    </script>
+</body>
+</html>
