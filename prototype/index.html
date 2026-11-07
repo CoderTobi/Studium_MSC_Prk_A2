@@ -192,6 +192,7 @@
 
                 const models = await modelsResponse.json();
                 const model = models.models?.[0]?.name;
+                console.log('Using Ollama model:', model);
 
                 if (!model) {
                     throw new Error('No Ollama model is installed.');
