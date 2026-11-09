@@ -1,29 +1,11 @@
 <mxfile host="65bd71144e">
     <diagram id="ov" name="Architecture">
-        <mxGraphModel dx="1356" dy="775" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1660" pageHeight="940" math="0" shadow="0">
+        <mxGraphModel dx="2393" dy="1478" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1660" pageHeight="940" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="ov_title" parent="1" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;" value="&lt;b style=&quot;font-size:18px&quot;&gt;AI-Supported Shopping List – ArchiMate view&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px&quot;&gt;Components · data flows&amp;nbsp; · trust boundaries (red dashed) · data storage regions (orange)&lt;/span&gt;" vertex="1">
-                    <mxGeometry height="50" width="1200" x="40" y="20" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_zA" parent="1" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#FDECEA;strokeColor=#C62828;strokeWidth=2.5;dashed=1;dashPattern=10 5;" value="User device – untrusted &lt;font color=&quot;#C62828&quot;&gt;(TB)&lt;/font&gt;" vertex="1">
-                    <mxGeometry height="580" width="420" x="40" y="90" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_actor" parent="ov_zA" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#FFFF99;shape=mxgraph.archimate3.application;appType=actor;archiType=square;fontSize=11;" value="&lt;b&gt;End User&lt;/b&gt;" vertex="1">
-                    <mxGeometry height="60" width="240" x="80" y="40" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_dev" parent="ov_zA" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#AFFFAF;shape=mxgraph.archimate3.tech;techType=device;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontStyle=1;fontSize=11;container=1;collapsible=0;recursiveResize=0;" value="Web Browser" vertex="1">
-                    <mxGeometry height="380" width="360" x="30" y="170" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_webui" parent="ov_dev" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.application;appType=comp;archiType=square;" value="&lt;b&gt;Web UI&lt;/b&gt;&lt;br&gt;Firebase Auth" vertex="1">
-                    <mxGeometry height="100" width="280" x="30" y="60" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_R1" parent="ov_dev" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=8;spacingTop=2;fontSize=10;fontStyle=1;fillColor=#FFF3E0;strokeColor=#D98A2B;strokeWidth=2;dashed=1;dashPattern=4 3;fontColor=#8A4B00;" value="R1 – Browser storage" vertex="1">
-                    <mxGeometry height="130" width="320" x="20" y="220" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_d_tok" parent="ov_R1" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.businessObject;verticalAlign=top;spacingTop=12;" value="&lt;b&gt;Auth session&lt;/b&gt;&lt;br&gt;Firebase ID / refresh token" vertex="1">
-                    <mxGeometry height="70" width="280" x="20" y="40" as="geometry"/>
+                    <mxGeometry height="50" width="1200" x="-150" y="-60" as="geometry"/>
                 </mxCell>
                 <mxCell id="ov_host" parent="1" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#FFFFFF;strokeColor=#C62828;strokeWidth=3;dashed=1;dashPattern=10 5;" value="Our server – only published ports reachable &lt;font color=&quot;#C62828&quot;&gt;(TB)&lt;/font&gt;" vertex="1">
                     <mxGeometry height="440" width="1100" x="520" y="430" as="geometry"/>
@@ -61,44 +43,6 @@
                 <mxCell id="ov_d_sec" parent="ov_R3" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.businessObject;verticalAlign=top;spacingTop=12;" value="&lt;b&gt;Secrets&lt;/b&gt;" vertex="1">
                     <mxGeometry height="55" width="120" x="233" y="32" as="geometry"/>
                 </mxCell>
-                <mxCell id="ov_srv" edge="1" parent="1" source="ov_webui" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;endSize=10;strokeColor=#333333;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="ov_actor" value="">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint as="offset"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="ov_a_tok" edge="1" parent="1" source="ov_webui" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;endSize=7;dashed=1;dashPattern=1 3;strokeWidth=1.5;strokeColor=#444444;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.464;entryY=0;entryDx=0;entryDy=0;" target="ov_d_tok" value="">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint as="offset"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="ov_f1" edge="1" parent="1" source="ov_feserver" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.964;entryY=1;entryDx=0;entryDy=0;" target="ov_webui" value="Frontend Code">
-                    <mxGeometry relative="1" x="0.558" y="15" as="geometry">
-                        <mxPoint as="offset"/>
-                        <Array as="points">
-                            <mxPoint x="490" y="595"/>
-                            <mxPoint x="490" y="445"/>
-                            <mxPoint x="369.9" y="445"/>
-                        </Array>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="ov_f3" edge="1" parent="1" source="ov_webui" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="ov_api" value="items (delete, add, accept), prompt, identity">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint y="-9" as="offset"/>
-                        <Array as="points">
-                            <mxPoint x="860" y="370"/>
-                            <mxPoint x="860" y="580"/>
-                        </Array>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="ov_f8" edge="1" parent="1" source="ov_api" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=0;exitY=0.6667;exitDx=0;exitDy=0;" target="ov_webui" value="items, AI suggestions, error">
-                    <mxGeometry relative="1" x="0.0013" as="geometry">
-                        <mxPoint y="12" as="offset"/>
-                        <Array as="points">
-                            <mxPoint x="840" y="630"/>
-                            <mxPoint x="840" y="405"/>
-                        </Array>
-                    </mxGeometry>
-                </mxCell>
                 <mxCell id="ov_f6" edge="1" parent="1" source="ov_api" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=1;exitY=0.1667;exitDx=0;exitDy=0;entryX=0;entryY=0.4545;entryDx=0;entryDy=0;" target="ov_ollama" value="processed prompt">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint y="-10" as="offset"/>
@@ -122,72 +66,6 @@
                 <mxCell id="ov_as_model" edge="1" parent="1" source="ov_ollama" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;startArrow=oval;startFill=1;endArrow=block;endFill=1;strokeColor=#333333;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ov_model" value="">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint as="offset"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="ov_leg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=12;fillColor=#FAFAFA;strokeColor=#9E9E9E;" value="Legend" vertex="1">
-                    <mxGeometry height="210" width="440" x="40" y="700" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lg0" parent="ov_leg" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.application;appType=comp;archiType=square;" value="" vertex="1">
-                    <mxGeometry height="30" width="56" x="12" y="32" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lgt0" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Application component" vertex="1">
-                    <mxGeometry height="20" width="140" x="76" y="38" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lg1" parent="ov_leg" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.businessObject;verticalAlign=top;spacingTop=12;" value="" vertex="1">
-                    <mxGeometry height="30" width="56" x="12" y="74" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lgt1" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Data object" vertex="1">
-                    <mxGeometry height="20" width="140" x="76" y="80" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lg2" parent="ov_leg" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#AFFFAF;shape=mxgraph.archimate3.tech;techType=device;" value="" vertex="1">
-                    <mxGeometry height="30" width="56" x="12" y="116" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lgt2" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Node / container" vertex="1">
-                    <mxGeometry height="20" width="140" x="76" y="122" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lg3" parent="ov_leg" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#AFFFAF;shape=mxgraph.archimate3.tech;techType=sysSw;fontSize=11;" value="" vertex="1">
-                    <mxGeometry height="30" width="56" x="12" y="158" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lgt3" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="System software" vertex="1">
-                    <mxGeometry height="20" width="140" x="76" y="164" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lr0" parent="ov_leg" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=none;strokeColor=#C62828;strokeWidth=2;dashed=1;dashPattern=10 5;" value="" vertex="1">
-                    <mxGeometry height="30" width="56" x="225" y="32" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lrt0" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Trust boundary" vertex="1">
-                    <mxGeometry height="20" width="145" x="290" y="38" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lr1" parent="ov_leg" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=8;spacingTop=2;fontSize=10;fontStyle=1;fillColor=#FFF3E0;strokeColor=#D98A2B;strokeWidth=2;dashed=1;dashPattern=4 3;fontColor=#8A4B00;" value="" vertex="1">
-                    <mxGeometry height="30" width="56" x="225" y="74" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_lrt1" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Data storage region" vertex="1">
-                    <mxGeometry height="20" width="145" x="290" y="80" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_let0" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Data flow" vertex="1">
-                    <mxGeometry height="20" width="145" x="290" y="116" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_let1" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Untrusted data flow" vertex="1">
-                    <mxGeometry height="20" width="145" x="290" y="142" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_let2" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Access / serving" vertex="1">
-                    <mxGeometry height="20" width="145" x="290" y="168" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_le0" edge="1" parent="1" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;" value="">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="265" y="825" as="sourcePoint"/>
-                        <mxPoint x="321" y="825" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="ov_le1" edge="1" parent="1" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#C62828;fontColor=#C62828;fontStyle=1;" value="">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="265" y="851" as="sourcePoint"/>
-                        <mxPoint x="321" y="851" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="ov_le2" edge="1" parent="1" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;endSize=7;dashed=1;dashPattern=1 3;strokeWidth=1.5;strokeColor=#444444;" value="">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="265" y="877" as="sourcePoint"/>
-                        <mxPoint x="321" y="877" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="Y-fTaazMxBxOJ9AvOO6n-10" connectable="0" parent="1" style="group" value="" vertex="1">
@@ -251,10 +129,211 @@
                         <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="ov_f2" edge="1" parent="1" source="ov_webui" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=1;exitY=0.15;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" target="ov_fbauth" value="sign-in">
-                    <mxGeometry relative="1" x="-0.5" as="geometry">
-                        <mxPoint y="-10" as="offset"/>
-                        <mxPoint x="640" y="230" as="targetPoint"/>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-11" connectable="0" parent="1" style="group" value="" vertex="1">
+                    <mxGeometry height="210" width="440" x="-150" y="16" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_leg" parent="Y-fTaazMxBxOJ9AvOO6n-11" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=12;fillColor=#FAFAFA;strokeColor=#9E9E9E;" value="Legend" vertex="1">
+                    <mxGeometry height="210" width="440" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lg0" parent="ov_leg" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.application;appType=comp;archiType=square;" value="" vertex="1">
+                    <mxGeometry height="30" width="56" x="12" y="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lgt0" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Application component" vertex="1">
+                    <mxGeometry height="20" width="140" x="76" y="38" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lg1" parent="ov_leg" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.businessObject;verticalAlign=top;spacingTop=12;" value="" vertex="1">
+                    <mxGeometry height="30" width="56" x="12" y="74" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lgt1" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Data object" vertex="1">
+                    <mxGeometry height="20" width="140" x="76" y="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lg2" parent="ov_leg" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#AFFFAF;shape=mxgraph.archimate3.tech;techType=device;" value="" vertex="1">
+                    <mxGeometry height="30" width="56" x="12" y="116" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lgt2" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Node / container" vertex="1">
+                    <mxGeometry height="20" width="140" x="76" y="122" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lg3" parent="ov_leg" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#AFFFAF;shape=mxgraph.archimate3.tech;techType=sysSw;fontSize=11;" value="" vertex="1">
+                    <mxGeometry height="30" width="56" x="12" y="158" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lgt3" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="System software" vertex="1">
+                    <mxGeometry height="20" width="140" x="76" y="164" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lr0" parent="ov_leg" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=none;strokeColor=#C62828;strokeWidth=2;dashed=1;dashPattern=10 5;" value="" vertex="1">
+                    <mxGeometry height="30" width="56" x="225" y="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lrt0" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Trust boundary" vertex="1">
+                    <mxGeometry height="20" width="145" x="290" y="38" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lr1" parent="ov_leg" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=8;spacingTop=2;fontSize=10;fontStyle=1;fillColor=#FFF3E0;strokeColor=#D98A2B;strokeWidth=2;dashed=1;dashPattern=4 3;fontColor=#8A4B00;" value="" vertex="1">
+                    <mxGeometry height="30" width="56" x="225" y="74" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_lrt1" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Data storage region" vertex="1">
+                    <mxGeometry height="20" width="145" x="290" y="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_let0" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Data flow" vertex="1">
+                    <mxGeometry height="20" width="145" x="290" y="116" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_let1" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Untrusted data flow" vertex="1">
+                    <mxGeometry height="20" width="145" x="290" y="142" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_let2" parent="ov_leg" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" value="Access / serving" vertex="1">
+                    <mxGeometry height="20" width="145" x="290" y="168" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_le0" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-11" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="225" y="125" as="sourcePoint"/>
+                        <mxPoint x="281" y="125" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ov_le1" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-11" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#C62828;fontColor=#C62828;fontStyle=1;" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="225" y="151" as="sourcePoint"/>
+                        <mxPoint x="281" y="151" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ov_le2" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-11" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;endSize=7;dashed=1;dashPattern=1 3;strokeWidth=1.5;strokeColor=#444444;" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="225" y="177" as="sourcePoint"/>
+                        <mxPoint x="281" y="177" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-29" connectable="0" parent="1" style="group" value="" vertex="1">
+                    <mxGeometry height="609" width="600" x="-150" y="261" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_zA" parent="Y-fTaazMxBxOJ9AvOO6n-29" style="rounded=0;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#FDECEA;strokeColor=#C62828;strokeWidth=2.5;dashed=1;dashPattern=10 5;" value="User device – untrusted &lt;font color=&quot;#C62828&quot;&gt;(TB)&lt;/font&gt;" vertex="1">
+                    <mxGeometry height="609" width="600" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-12" parent="Y-fTaazMxBxOJ9AvOO6n-29" style="html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;shape=mxgraph.archimate3.application;appType=device;verticalAlign=top;container=1;collapsible=0;recursiveResize=0;" value="Device&lt;div&gt;Smartphone / Tablet&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="140" width="250" x="60" y="419.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-13" parent="Y-fTaazMxBxOJ9AvOO6n-12" style="html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;shape=mxgraph.archimate3.application;appType=sysSw;archiType=square;fontSize=11;" value="System Software&lt;div&gt;iOS&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="65" width="105" x="13" y="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-14" parent="Y-fTaazMxBxOJ9AvOO6n-12" style="html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;shape=mxgraph.archimate3.application;appType=sysSw;archiType=square;fontSize=11;" value="System Software&lt;div&gt;Android&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="65" width="105" x="132" y="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-15" parent="Y-fTaazMxBxOJ9AvOO6n-29" style="html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;shape=mxgraph.archimate3.application;appType=device;verticalAlign=top;container=1;collapsible=0;recursiveResize=0;" value="Device&lt;div&gt;Desktop-PC / Notebook&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="140" width="250" x="330" y="419.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-17" parent="Y-fTaazMxBxOJ9AvOO6n-15" style="html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;shape=mxgraph.archimate3.application;appType=sysSw;archiType=square;fontSize=11;" value="System Software&lt;div&gt;Windows&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="65" width="105" x="10" y="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-18" parent="Y-fTaazMxBxOJ9AvOO6n-15" style="html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;shape=mxgraph.archimate3.application;appType=sysSw;archiType=square;fontSize=11;" value="System Software&lt;div&gt;Linux&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="65" width="105" x="130" y="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_actor" parent="Y-fTaazMxBxOJ9AvOO6n-29" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#FFFF99;shape=mxgraph.archimate3.application;appType=actor;archiType=square;fontSize=11;" value="&lt;b&gt;End User&lt;/b&gt;" vertex="1">
+                    <mxGeometry height="60" width="105" x="15" y="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-19" connectable="0" parent="Y-fTaazMxBxOJ9AvOO6n-29" style="group" value="" vertex="1">
+                    <mxGeometry height="350" width="360" x="150" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-16" parent="Y-fTaazMxBxOJ9AvOO6n-19" style="html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;shape=mxgraph.archimate3.application;appType=sysSw;archiType=square;fontSize=11;align=left;verticalAlign=top;" value="System Software&lt;div&gt;Webbrowser&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="350" width="360" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_webui" parent="Y-fTaazMxBxOJ9AvOO6n-19" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.application;appType=comp;archiType=square;" value="&lt;b&gt;Web UI&lt;/b&gt;&lt;br&gt;Firebase Auth" vertex="1">
+                    <mxGeometry height="130" width="280" x="30" y="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_R1" parent="Y-fTaazMxBxOJ9AvOO6n-19" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=8;spacingTop=2;fontSize=10;fontStyle=1;fillColor=#FFF3E0;strokeColor=#D98A2B;strokeWidth=2;dashed=1;dashPattern=4 3;fontColor=#8A4B00;" value="R1 – Browser storage" vertex="1">
+                    <mxGeometry height="130" width="320" x="20" y="210" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_d_tok" parent="ov_R1" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.businessObject;verticalAlign=top;spacingTop=12;" value="&lt;b&gt;Auth session&lt;/b&gt;&lt;br&gt;Firebase ID / refresh token" vertex="1">
+                    <mxGeometry height="70" width="280" x="20" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_a_tok" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-19" source="ov_webui" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;endSize=7;dashed=1;dashPattern=1 3;strokeWidth=1.5;strokeColor=#444444;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.464;entryY=0;entryDx=0;entryDy=0;" target="ov_d_tok" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-20" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-29" style="edgeStyle=elbowEdgeStyle;html=1;endArrow=none;elbow=vertical;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="ov_actor" value="">
+                    <mxGeometry relative="1" width="160" x="-0.1304" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="30" y="140"/>
+                        </Array>
+                        <mxPoint x="180" y="140" as="sourcePoint"/>
+                        <mxPoint y="160" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-21" connectable="0" parent="Y-fTaazMxBxOJ9AvOO6n-20" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;" value="Verwendet" vertex="1">
+                    <mxGeometry relative="1" x="-0.0725" y="2" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-22" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-29" source="ov_actor" style="edgeStyle=elbowEdgeStyle;html=1;endArrow=none;elbow=vertical;exitX=0.25;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;" target="Y-fTaazMxBxOJ9AvOO6n-12" value="">
+                    <mxGeometry relative="1" width="160" x="0.0698" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="130" y="590"/>
+                        </Array>
+                        <mxPoint x="160" y="340" as="sourcePoint"/>
+                        <mxPoint x="320" y="340" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-23" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-29" source="ov_actor" style="edgeStyle=elbowEdgeStyle;html=1;endArrow=none;elbow=vertical;exitX=0.25;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;" target="Y-fTaazMxBxOJ9AvOO6n-15" value="">
+                    <mxGeometry relative="1" width="160" x="-0.4689" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="260" y="590"/>
+                        </Array>
+                        <mxPoint x="130" y="590" as="sourcePoint"/>
+                        <mxPoint x="274" y="900" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-24" connectable="0" parent="Y-fTaazMxBxOJ9AvOO6n-23" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;" value="Gehört /&lt;div&gt;&amp;nbsp;Betreibt&lt;/div&gt;" vertex="1">
+                    <mxGeometry relative="1" x="-0.7815" as="geometry">
+                        <mxPoint x="26" y="-11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-25" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-29" source="Y-fTaazMxBxOJ9AvOO6n-12" style="edgeStyle=elbowEdgeStyle;html=1;endArrow=none;elbow=vertical;" target="Y-fTaazMxBxOJ9AvOO6n-16" value="">
+                    <mxGeometry relative="1" width="160" as="geometry">
+                        <mxPoint x="220" y="320" as="sourcePoint"/>
+                        <mxPoint x="380" y="320" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-28" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-29" source="Y-fTaazMxBxOJ9AvOO6n-16" style="edgeStyle=elbowEdgeStyle;html=1;endArrow=none;elbow=vertical;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" target="Y-fTaazMxBxOJ9AvOO6n-15" value="">
+                    <mxGeometry relative="1" width="160" as="geometry">
+                        <mxPoint x="130" y="320" as="sourcePoint"/>
+                        <mxPoint x="290" y="320" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ov_f1" edge="1" parent="1" source="ov_feserver" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="ov_webui" value="Frontend Code">
+                    <mxGeometry relative="1" x="-0.7383" y="15" as="geometry">
+                        <mxPoint as="offset"/>
+                        <Array as="points">
+                            <mxPoint x="490" y="595"/>
+                            <mxPoint x="490" y="460"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ov_f3" edge="1" parent="1" source="ov_webui" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="ov_api" value="items (delete, add, accept), prompt, identity">
+                    <mxGeometry relative="1" x="-0.0846" as="geometry">
+                        <mxPoint y="-9" as="offset"/>
+                        <Array as="points">
+                            <mxPoint x="860" y="390"/>
+                            <mxPoint x="860" y="580"/>
+                        </Array>
+                        <mxPoint x="520" y="370" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ov_f8" edge="1" parent="1" source="ov_api" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=0;exitY=0.6667;exitDx=0;exitDy=0;" target="ov_webui" value="items, AI suggestions, error">
+                    <mxGeometry relative="1" x="-0.04" as="geometry">
+                        <mxPoint y="12" as="offset"/>
+                        <Array as="points">
+                            <mxPoint x="840" y="630"/>
+                            <mxPoint x="840" y="400"/>
+                            <mxPoint x="500" y="400"/>
+                            <mxPoint x="500" y="440"/>
+                        </Array>
+                        <mxPoint x="480" y="420" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ov_f2" edge="1" parent="1" source="ov_webui" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" value="sign-in">
+                    <mxGeometry relative="1" x="0.4623" y="-9" as="geometry">
+                        <mxPoint as="offset"/>
+                        <Array as="points">
+                            <mxPoint x="500" y="370"/>
+                            <mxPoint x="500" y="251"/>
+                        </Array>
+                        <mxPoint x="490.5" y="370" as="sourcePoint"/>
+                        <mxPoint x="860.5" y="251.00000000000023" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
             </root>
