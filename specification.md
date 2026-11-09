@@ -66,5 +66,4 @@
 
 ## Other
 - The prototype in `/prototype` should be ignored and not used as reference
-- ignore the `ai-archimate.drawio` as it is not good and contains errors
 - API Keys and secrets should never be tracked by git and should live in seprate files
