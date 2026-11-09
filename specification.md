@@ -8,6 +8,10 @@
 - We do not plan to have multiple shopping lists
 - Before they can use the app, they must authenticate first
 
+## Frontend
+- The Web App should have a valid Impressum
+- The Web should have a responsive UI
+
 ## Backend
 - The items should be stored on the backend inside the Database
 - users should only be able to see their own items and never those of other peoples
