@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="ov" name="Architecture">
-        <mxGraphModel dx="763" dy="373" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1660" pageHeight="940" math="0" shadow="0">
+        <mxGraphModel dx="1356" dy="775" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1660" pageHeight="940" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -24,24 +24,6 @@
                 </mxCell>
                 <mxCell id="ov_d_tok" parent="ov_R1" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.businessObject;verticalAlign=top;spacingTop=12;" value="&lt;b&gt;Auth session&lt;/b&gt;&lt;br&gt;Firebase ID / refresh token" vertex="1">
                     <mxGeometry height="70" width="280" x="20" y="40" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_zB" parent="1" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#EAF1FB;strokeColor=#C62828;strokeWidth=2.5;dashed=1;dashPattern=10 5;" value="Google Cloud / Firebase – 3rd party &lt;font color=&quot;#C62828&quot;&gt;(TB)&lt;/font&gt;" vertex="1">
-                    <mxGeometry height="250" width="760" x="520" y="90" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_R2" parent="ov_zB" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=8;spacingTop=2;fontSize=10;fontStyle=1;fillColor=#FFF3E0;strokeColor=#D98A2B;strokeWidth=2;dashed=1;dashPattern=4 3;fontColor=#8A4B00;" value="R2 – Firebase project location (Google Cloud region)" vertex="1">
-                    <mxGeometry height="110" width="420" x="330" y="30" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_d_users" parent="ov_R2" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.businessObject;verticalAlign=top;spacingTop=12;" value="&lt;b&gt;User accounts&lt;/b&gt;" vertex="1">
-                    <mxGeometry height="55" width="190" x="10" y="35" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_d_items" parent="ov_R2" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.businessObject;verticalAlign=top;spacingTop=12;" value="&lt;b&gt;Shopping items&lt;/b&gt;&lt;br&gt;per user" vertex="1">
-                    <mxGeometry height="55" width="190" x="220" y="35" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_fbauth" parent="ov_zB" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.application;appType=comp;archiType=square;" value="&lt;b&gt;Firebase Authentication&lt;/b&gt;" vertex="1">
-                    <mxGeometry height="70" width="190" x="340" y="160" as="geometry"/>
-                </mxCell>
-                <mxCell id="ov_fs" parent="ov_zB" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.application;appType=comp;archiType=square;" value="&lt;b&gt;Cloud Firestore&lt;/b&gt;" vertex="1">
-                    <mxGeometry height="70" width="190" x="550" y="160" as="geometry"/>
                 </mxCell>
                 <mxCell id="ov_host" parent="1" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#FFFFFF;strokeColor=#C62828;strokeWidth=3;dashed=1;dashPattern=10 5;" value="Our server – only published ports reachable &lt;font color=&quot;#C62828&quot;&gt;(TB)&lt;/font&gt;" vertex="1">
                     <mxGeometry height="440" width="1100" x="520" y="430" as="geometry"/>
@@ -99,15 +81,6 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="ov_f2" edge="1" parent="1" source="ov_webui" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=1;exitY=0.15;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="ov_fbauth" value="sign-in">
-                    <mxGeometry relative="1" x="0.3" as="geometry">
-                        <mxPoint y="-10" as="offset"/>
-                        <Array as="points">
-                            <mxPoint x="480" y="335"/>
-                            <mxPoint x="480" y="285"/>
-                        </Array>
-                    </mxGeometry>
-                </mxCell>
                 <mxCell id="ov_f3" edge="1" parent="1" source="ov_webui" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="ov_api" value="items (delete, add, accept), prompt, identity">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint y="-9" as="offset"/>
@@ -126,16 +99,6 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="ov_f4" edge="1" parent="1" source="ov_api" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=0.1833;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="ov_fbauth" value="verify identity">
-                    <mxGeometry relative="1" x="0.2" as="geometry">
-                        <mxPoint as="offset"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="ov_f5" edge="1" parent="1" source="ov_api" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=0.8833;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="ov_fs" value="read / write items">
-                    <mxGeometry relative="1" x="0.2" as="geometry">
-                        <mxPoint as="offset"/>
-                    </mxGeometry>
-                </mxCell>
                 <mxCell id="ov_f6" edge="1" parent="1" source="ov_api" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=1;exitY=0.1667;exitDx=0;exitDy=0;entryX=0;entryY=0.4545;entryDx=0;entryDy=0;" target="ov_ollama" value="processed prompt">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint y="-10" as="offset"/>
@@ -152,16 +115,6 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="ov_a_sec" edge="1" parent="1" source="ov_api" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;endSize=7;dashed=1;dashPattern=1 3;strokeWidth=1.5;strokeColor=#444444;exitX=0.9067;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ov_d_sec" value="">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint as="offset"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="ov_a_users" edge="1" parent="1" source="ov_fbauth" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;endSize=7;dashed=1;dashPattern=1 3;strokeWidth=1.5;strokeColor=#444444;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="ov_d_users" value="">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint as="offset"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="ov_a_items" edge="1" parent="1" source="ov_fs" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;endSize=7;dashed=1;dashPattern=1 3;strokeWidth=1.5;strokeColor=#444444;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;startArrow=open;startFill=0;" target="ov_d_items" value="">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint as="offset"/>
                     </mxGeometry>
@@ -235,6 +188,73 @@
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="265" y="877" as="sourcePoint"/>
                         <mxPoint x="321" y="877" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-10" connectable="0" parent="1" style="group" value="" vertex="1">
+                    <mxGeometry height="310" width="680" x="810" y="16" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_zB" parent="Y-fTaazMxBxOJ9AvOO6n-10" style="rounded=0;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontSize=13;fillColor=#EAF1FB;strokeColor=#C62828;strokeWidth=2.5;dashed=1;dashPattern=10 5;" value="Google Cloud / Firebase – 3rd party &lt;font color=&quot;#C62828&quot;&gt;(TB)&lt;/font&gt;" vertex="1">
+                    <mxGeometry height="310" width="680" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-6" parent="ov_zB" style="html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#ffff99;shape=mxgraph.archimate3.application;appType=actor;archiType=square;" value="Google" vertex="1">
+                    <mxGeometry height="75" width="150" x="510" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-1" parent="Y-fTaazMxBxOJ9AvOO6n-10" style="html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;shape=mxgraph.archimate3.application;appType=node;archiType=square;labelPosition=center;verticalLabelPosition=middle;align=left;verticalAlign=top;" value="Firebase" vertex="1">
+                    <mxGeometry height="250" width="470" x="20" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_R2" parent="Y-fTaazMxBxOJ9AvOO6n-10" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;align=left;spacingLeft=8;spacingTop=2;fontSize=10;fontStyle=1;fillColor=#FFF3E0;strokeColor=#D98A2B;strokeWidth=2;dashed=1;dashPattern=4 3;fontColor=#8A4B00;" value="R2 – Firebase project location (Google Cloud region)" vertex="1">
+                    <mxGeometry height="110" width="429" x="40.5" y="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_d_users" parent="ov_R2" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.businessObject;verticalAlign=top;spacingTop=12;" value="&lt;b&gt;User accounts&lt;/b&gt;" vertex="1">
+                    <mxGeometry height="55" width="190" x="10" y="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_d_items" parent="ov_R2" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.businessObject;verticalAlign=top;spacingTop=12;" value="&lt;b&gt;Shopping items&lt;/b&gt;&lt;br&gt;per user" vertex="1">
+                    <mxGeometry height="55" width="190" x="220" y="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_fs" parent="Y-fTaazMxBxOJ9AvOO6n-10" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.application;appType=comp;archiType=square;" value="&lt;b&gt;Cloud Firestore&lt;/b&gt;" vertex="1">
+                    <mxGeometry height="70" width="190" x="260.5" y="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="ov_a_items" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-10" source="ov_fs" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;endSize=7;dashed=1;dashPattern=1 3;strokeWidth=1.5;strokeColor=#444444;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;startArrow=open;startFill=0;" target="ov_d_items" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ov_a_users" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-10" source="ov_fbauth" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;endSize=7;dashed=1;dashPattern=1 3;strokeWidth=1.5;strokeColor=#444444;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="ov_d_users" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ov_fbauth" parent="Y-fTaazMxBxOJ9AvOO6n-10" style="html=1;outlineConnect=0;whiteSpace=wrap;fontSize=10;fillColor=#99FFFF;shape=mxgraph.archimate3.application;appType=comp;archiType=square;" value="&lt;b&gt;Firebase Authentication&lt;/b&gt;" vertex="1">
+                    <mxGeometry height="70" width="190" x="50" y="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-8" edge="1" parent="Y-fTaazMxBxOJ9AvOO6n-10" source="Y-fTaazMxBxOJ9AvOO6n-6" style="edgeStyle=elbowEdgeStyle;html=1;endArrow=none;elbow=vertical;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;entryPerimeter=0;" target="Y-fTaazMxBxOJ9AvOO6n-1" value="">
+                    <mxGeometry relative="1" width="160" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="580" y="227.5"/>
+                        </Array>
+                        <mxPoint x="720" y="200" as="sourcePoint"/>
+                        <mxPoint x="1040" y="260" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y-fTaazMxBxOJ9AvOO6n-9" connectable="0" parent="Y-fTaazMxBxOJ9AvOO6n-8" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;" value="Betreibt" vertex="1">
+                    <mxGeometry relative="1" x="-0.5079" y="-2" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ov_f5" edge="1" parent="1" source="ov_api" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=0.8833;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="ov_fs" value="read / write items">
+                    <mxGeometry relative="1" x="0.2" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ov_f4" edge="1" parent="1" source="ov_api" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=0.1833;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="ov_fbauth" value="verify identity">
+                    <mxGeometry relative="1" x="0.2" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ov_f2" edge="1" parent="1" source="ov_webui" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=10;fontSize=10;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;dashed=1;dashPattern=8 4;strokeWidth=2;strokeColor=#1F4E79;fontColor=#1F4E79;fontStyle=1;exitX=1;exitY=0.15;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" target="ov_fbauth" value="sign-in">
+                    <mxGeometry relative="1" x="-0.5" as="geometry">
+                        <mxPoint y="-10" as="offset"/>
+                        <mxPoint x="640" y="230" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
             </root>
