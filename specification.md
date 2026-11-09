@@ -66,3 +66,4 @@
 
 ## Other
 - The prototype in `/prototype` should be ignored and not used as reference
+- API Keys and secrets should never be tracked by git and should live in seprate files
