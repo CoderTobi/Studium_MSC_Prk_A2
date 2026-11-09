@@ -50,7 +50,7 @@
 ### Authentication
 - Firebase Authentication
 ### DB
-- postgresql
+- Firestore
 ### Containerisation
 - 3 Containers (Backend, Frontend, DB)
 - Docker
