@@ -56,7 +56,7 @@
 ### DB
 - Firestore
 ### Containerisation
-- 3 Containers (Backend, Frontend, DB)
+- 2 Containers (Backend, Frontend)
 - Docker
 - Compose
 ### LLM
