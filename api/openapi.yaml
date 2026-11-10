@@ -1,0 +1,908 @@
+openapi: 3.1.0
+
+info:
+  title: AI Supported Shopping List API
+  version: 1.0.0
+  summary: REST API between the SvelteKit frontend and the Python backend.
+  description: |
+    This API is the **only** interface between the frontend and the backend of the
+    AI supported shopping list. Each authenticated user has exactly one shopping list
+    (there are no multiple lists, so lists have no IDs). The list's items are stored
+    in Firestore by the backend.
+
+    ## Authentication
+    * The frontend signs the user in **directly with Firebase Authentication** (Firebase
+      JS SDK). That exchange is not part of this API.
+    * Every request to a protected endpoint must send the user's current **Firebase ID
+      token** in the header `Authorization: Bearer <token>`.
+    * The backend checks the token's signature, expiry, audience and issuer, using the
+      Firebase Admin SDK. The user identity is **only** the token's `uid` claim. The user
+      ID is never taken from a path, query or body parameter.
+    * Missing, malformed, expired or revoked tokens get `401 UNAUTHENTICATED`.
+    * The only endpoint that needs no authentication is `GET /health`.
+
+    ### Debug mode (auth verification disabled)
+    For testing and debugging, the backend can be configured to **skip token
+    verification**. In that mode:
+    * If a bearer token is present, its `uid` claim is decoded **without** checking the
+      signature. This makes it possible to test with several users.
+    * If no token is present, the request belongs to a fixed debug user (for example
+      `debug-user`).
+    * The backend logs a clear warning at startup. This mode must never be used in
+      production.
+
+    The API contract (paths, schemas, error format) does not change in debug mode.
+
+    ## Data isolation
+    Items are stored in Firestore under the authenticated user's `uid`. A user can only
+    list, create and delete their own items. An item that belongs to another user is
+    treated **exactly like an item that does not exist** (`404 ITEM_NOT_FOUND`), so
+    other users' item IDs can't be discovered by probing.
+
+    ## AI recommendations
+    * The frontend never talks to Ollama. It does not know the Ollama URL or the model.
+      Both are backend configuration and appear nowhere in this API.
+    * `POST /recommendations` runs this pipeline on the backend:
+      1. **Prompt validation**: the prompt is trimmed and its length is limited
+         (`PROMPT_EMPTY`, `PROMPT_TOO_LONG`).
+      2. **Prompt injection check** (`PROMPT_REJECTED`).
+      3. **Ollama call** with a server-side timeout (`AI_TIMEOUT`, `AI_UNAVAILABLE`).
+      4. **Response validation and parsing**: the model output is parsed into the fixed
+         `Recommendation` schema. Only `name` is kept, lengths and counts are limited,
+         and everything else is dropped. If the output can't be parsed into
+         that schema, the backend returns `AI_INVALID_RESPONSE`.
+    * The raw model output is **never** sent to the client, not even in error responses.
+    * Recommendations are **not** stored. The user accepts recommendations by adding
+      them through the item endpoints with `source: ai_recommendation`. To discard
+      recommendations, the frontend simply drops them, so no backend call is needed.
+    * Every recommendation response carries a `disclaimer` saying that AI may make
+      mistakes. The frontend must show it, and must mark recommendations visibly as AI
+      generated.
+
+    ## Error format
+    The backend **always** answers with `application/json`, including on errors,
+    unknown routes, internal failures and invalid AI output. Every error uses the
+    `ErrorResponse` schema with a machine-readable `code`:
+
+    | code                     | HTTP | Meaning                                                    |
+    |--------------------------|------|------------------------------------------------------------|
+    | `VALIDATION_ERROR`       | 400  | Request body or parameters don't match the schema          |
+    | `PROMPT_EMPTY`           | 400  | Prompt is empty or only whitespace                         |
+    | `PROMPT_TOO_LONG`        | 400  | Prompt is longer than the allowed maximum                  |
+    | `UNAUTHENTICATED`        | 401  | Token is missing, invalid or expired                       |
+    | `ITEM_NOT_FOUND`         | 404  | Item doesn't exist or doesn't belong to the user           |
+    | `NOT_FOUND`              | 404  | Unknown route                                              |
+    | `METHOD_NOT_ALLOWED`     | 405  | HTTP method isn't supported on this route                  |
+    | `ITEM_LIMIT_REACHED`     | 409  | The user's list already holds the maximum number of items  |
+    | `PAYLOAD_TOO_LARGE`      | 413  | Request body is larger than the allowed size               |
+    | `UNSUPPORTED_MEDIA_TYPE` | 415  | Request body isn't `application/json`                      |
+    | `PROMPT_REJECTED`        | 422  | Prompt failed the prompt injection or abuse check          |
+    | `RATE_LIMIT_EXCEEDED`    | 429  | The user's rate limit is exhausted                         |
+    | `INTERNAL_ERROR`         | 500  | Unexpected server error (for example a Firestore failure)  |
+    | `AI_INVALID_RESPONSE`    | 502  | Model output couldn't be parsed or validated               |
+    | `AI_UNAVAILABLE`         | 503  | Ollama can't be reached                                    |
+    | `AI_TIMEOUT`             | 504  | Ollama didn't answer within the server-side timeout        |
+
+    `message` is short English text that is safe to show to users. It never contains
+    stack traces, prompt content, model output or internal details. Clients should
+    branch on `code`, not on `message`.
+
+    ## Rate limiting
+    Every authenticated user has a rate limit, counted per `uid`. There are two buckets:
+    * **general**: all authenticated endpoints (example default: 60 requests per minute).
+    * **ai**: `POST /recommendations` (example default: 10 requests per minute). These
+      requests also count against the general bucket.
+
+    Responses from authenticated endpoints carry `RateLimit-Limit`, `RateLimit-Remaining`
+    and `RateLimit-Reset` for the most restrictive bucket that applies. When the limit is
+    exceeded, the backend answers `429 RATE_LIMIT_EXCEEDED` with a `Retry-After` header.
+
+    ## Request IDs
+    Every response carries an `X-Request-ID` header, and every error body carries the
+    same `requestId`. The ID ties a client-side error to the backend logs without logging
+    the prompt or the response.
+
+    ## Logging (informative)
+    The backend logs which model it used and how many tokens each AI request consumed.
+    By default it does **not** log prompts or model responses. None of this shows up in
+    the API.
+
+    ## CORS
+    The frontend reaches the backend at its configurable backend URL, which is usually
+    a different origin. The backend must therefore allow the frontend origin via CORS,
+    including the `Authorization` and `Content-Type` request headers. It must also expose
+    the `X-Request-ID`, `RateLimit-*` and `Retry-After` response headers.
+
+servers:
+  - url: "{backendUrl}/api/v1"
+    description: Backend. The base URL is configured in the frontend.
+    variables:
+      backendUrl:
+        default: http://localhost:8000
+        description: The configurable backend URL (frontend configuration option).
+
+tags:
+  - name: System
+    description: Health and operational endpoints.
+  - name: Items
+    description: Managing the authenticated user's shopping list.
+  - name: Recommendations
+    description: AI-generated item recommendations, produced by the backend through Ollama.
+
+security:
+  - firebaseAuth: []
+
+paths:
+  /health:
+    get:
+      tags: [System]
+      operationId: getHealth
+      summary: Liveness check
+      description: |
+        Shows whether the backend process is up, for example for the Docker Compose
+        healthcheck. Needs no authentication and isn't rate limited per user.
+        The response deliberately says nothing about Ollama, Firestore or the configuration.
+      security: []
+      responses:
+        "200":
+          description: The backend is running.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: ok
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /items:
+    get:
+      tags: [Items]
+      operationId: listItems
+      summary: List all items on the user's shopping list
+      description: |
+        Returns all items of the authenticated user in the order they were added, oldest
+        first. The backend may keep an internal sort key for this, but it is not part of
+        the API. No pagination is needed, because the list holds at most `ITEM_LIMIT` items.
+      responses:
+        "200":
+          description: The user's shopping list.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+            RateLimit-Limit:
+              $ref: "#/components/headers/RateLimit-Limit"
+            RateLimit-Remaining:
+              $ref: "#/components/headers/RateLimit-Remaining"
+            RateLimit-Reset:
+              $ref: "#/components/headers/RateLimit-Reset"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemList"
+              example:
+                items:
+                  - id: "3fQk9ZbXc1LmN0pR7sTu"
+                    name: Milk
+                    source: manual
+                  - id: "aB7cD9eF1gH3iJ5kL7mN"
+                    name: Spaghetti
+                    source: ai_recommendation
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "429":
+          $ref: "#/components/responses/RateLimitExceeded"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+    post:
+      tags: [Items]
+      operationId: createItem
+      summary: Add a single item to the shopping list
+      description: |
+        Adds one item to the authenticated user's list. The backend assigns `id` and
+        trims `name`.
+
+        Duplicate names are allowed. The backend does not merge items.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewItem"
+            examples:
+              manual:
+                summary: Item added by the user
+                value:
+                  name: Milk
+              acceptedRecommendation:
+                summary: Accepted AI recommendation
+                value:
+                  name: Spaghetti
+                  source: ai_recommendation
+      responses:
+        "201":
+          description: The item was created.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+            Location:
+              $ref: "#/components/headers/Location"
+            RateLimit-Limit:
+              $ref: "#/components/headers/RateLimit-Limit"
+            RateLimit-Remaining:
+              $ref: "#/components/headers/RateLimit-Remaining"
+            RateLimit-Reset:
+              $ref: "#/components/headers/RateLimit-Reset"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+              example:
+                id: "3fQk9ZbXc1LmN0pR7sTu"
+                name: Milk
+                source: manual
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "409":
+          $ref: "#/components/responses/ItemLimitReached"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/RateLimitExceeded"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /items/batch:
+    post:
+      tags: [Items]
+      operationId: createItemsBatch
+      summary: Add several items at once
+      description: |
+        Adds several items in one **atomic** operation: either all items are created or
+        none are. The main use is accepting several AI recommendations at once (for
+        example "accept all" or "accept selected").
+
+        The same validation rules as `POST /items` apply to every entry. If any entry
+        is invalid, the whole request fails with `400 VALIDATION_ERROR`, and `details`
+        points to the offending entries (for example `items[2].name`). If the batch
+        would push the list past `ITEM_LIMIT`, no item is created and the request fails
+        with `409 ITEM_LIMIT_REACHED`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewItemBatch"
+            example:
+              items:
+                - name: Spaghetti
+                  source: ai_recommendation
+                - name: Tomatoes
+                  source: ai_recommendation
+                - name: Parmesan
+                  source: ai_recommendation
+      responses:
+        "201":
+          description: All items were created. They come back in request order.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+            RateLimit-Limit:
+              $ref: "#/components/headers/RateLimit-Limit"
+            RateLimit-Remaining:
+              $ref: "#/components/headers/RateLimit-Remaining"
+            RateLimit-Reset:
+              $ref: "#/components/headers/RateLimit-Reset"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemList"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "409":
+          $ref: "#/components/responses/ItemLimitReached"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/RateLimitExceeded"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /items/{itemId}:
+    parameters:
+      - $ref: "#/components/parameters/ItemId"
+    delete:
+      tags: [Items]
+      operationId: deleteItem
+      summary: Remove an item from the shopping list
+      description: |
+        Removes the item permanently. If the item doesn't exist **or belongs to a
+        different user**, the backend answers `404 ITEM_NOT_FOUND`. Both cases look
+        the same to the client.
+      responses:
+        "204":
+          description: The item was deleted. The response has no body.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+            RateLimit-Limit:
+              $ref: "#/components/headers/RateLimit-Limit"
+            RateLimit-Remaining:
+              $ref: "#/components/headers/RateLimit-Remaining"
+            RateLimit-Reset:
+              $ref: "#/components/headers/RateLimit-Reset"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/ItemNotFound"
+        "429":
+          $ref: "#/components/responses/RateLimitExceeded"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /recommendations:
+    post:
+      tags: [Recommendations]
+      operationId: createRecommendations
+      summary: Get AI recommendations for what the user wants to eat
+      description: |
+        The user describes in free text what they want to eat. The backend checks the
+        prompt, asks the configured Ollama model, then validates and normalizes the
+        answer into a list of recommended items.
+
+        * Nothing is stored. To accept recommendations, call `POST /items` or
+          `POST /items/batch` with `source: ai_recommendation`.
+        * An empty `recommendations` array is a valid result, for example when the
+          prompt yields no sensible grocery items.
+        * The backend caps the number of recommendations and the length of each field.
+          Entries that can't be normalized are dropped. If no usable structure can be
+          extracted at all, the backend answers `502 AI_INVALID_RESPONSE`.
+        * The call can take several seconds. The client timeout should be longer than
+          the backend's Ollama timeout (example default: 30 s).
+        * This call counts against both the **ai** and the **general** rate limit bucket.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecommendationRequest"
+            example:
+              prompt: I want to cook spaghetti bolognese for four people tonight.
+      responses:
+        "200":
+          description: Validated AI recommendations.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+            RateLimit-Limit:
+              $ref: "#/components/headers/RateLimit-Limit"
+            RateLimit-Remaining:
+              $ref: "#/components/headers/RateLimit-Remaining"
+            RateLimit-Reset:
+              $ref: "#/components/headers/RateLimit-Reset"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecommendationResponse"
+              examples:
+                recommendations:
+                  summary: Recommendations were found
+                  value:
+                    recommendations:
+                      - name: Spaghetti
+                      - name: Ground beef
+                      - name: Canned tomatoes
+                      - name: Onion
+                      - name: Parmesan
+                    disclaimer: >-
+                      These suggestions were generated by AI and may contain mistakes.
+                      Please review them before adding them to your list.
+                empty:
+                  summary: No sensible recommendations
+                  value:
+                    recommendations: []
+                    disclaimer: >-
+                      These suggestions were generated by AI and may contain mistakes.
+                      Please review them before adding them to your list.
+        "400":
+          description: |
+            The prompt is empty (`PROMPT_EMPTY`), too long (`PROMPT_TOO_LONG`), or the
+            request body is malformed (`VALIDATION_ERROR`).
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                empty:
+                  value:
+                    error:
+                      code: PROMPT_EMPTY
+                      message: Please describe what you would like to eat.
+                      requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+                tooLong:
+                  value:
+                    error:
+                      code: PROMPT_TOO_LONG
+                      message: The prompt must not be longer than 500 characters.
+                      requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "422":
+          description: |
+            The prompt was rejected by the prompt injection or abuse check
+            (`PROMPT_REJECTED`). On purpose, the message doesn't say which rule matched.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: PROMPT_REJECTED
+                  message: >-
+                    Your prompt could not be processed. Please describe a meal or dish
+                    you would like to cook.
+                  requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+        "429":
+          $ref: "#/components/responses/RateLimitExceeded"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "502":
+          description: |
+            The model's answer couldn't be parsed into the recommendation schema
+            (`AI_INVALID_RESPONSE`). The raw model output is never returned.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: AI_INVALID_RESPONSE
+                  message: The AI returned an unusable answer. Please try again.
+                  requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+        "503":
+          description: The Ollama server can't be reached (`AI_UNAVAILABLE`).
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: AI_UNAVAILABLE
+                  message: The AI service is currently unavailable. Please try again later.
+                  requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+        "504":
+          description: Ollama didn't answer within the server-side timeout (`AI_TIMEOUT`).
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/X-Request-ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error:
+                  code: AI_TIMEOUT
+                  message: The AI took too long to respond. Please try again.
+                  requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+
+components:
+  securitySchemes:
+    firebaseAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Firebase Authentication ID token of the signed-in user. The frontend gets it from
+        the Firebase JS SDK (`user.getIdToken()`), which also refreshes it before expiry.
+        The backend verifies it with the Firebase Admin SDK, unless verification is
+        turned off for debugging (see the API description).
+
+  parameters:
+    ItemId:
+      name: itemId
+      in: path
+      required: true
+      description: ID of the item, as returned by the backend.
+      schema:
+        $ref: "#/components/schemas/ItemId"
+
+  headers:
+    X-Request-ID:
+      description: Unique ID of this request. The same value appears as `requestId` in error bodies.
+      schema:
+        type: string
+        maxLength: 64
+      example: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+    Location:
+      description: URL of the created item resource.
+      schema:
+        type: string
+      example: /api/v1/items/3fQk9ZbXc1LmN0pR7sTu
+    RateLimit-Limit:
+      description: Maximum number of requests in the current window, for the most restrictive applicable bucket.
+      schema:
+        type: integer
+        minimum: 0
+      example: 60
+    RateLimit-Remaining:
+      description: Requests left in the current window, for the most restrictive applicable bucket.
+      schema:
+        type: integer
+        minimum: 0
+      example: 57
+    RateLimit-Reset:
+      description: Seconds until the current window resets.
+      schema:
+        type: integer
+        minimum: 0
+      example: 42
+    Retry-After:
+      description: Seconds the client should wait before retrying.
+      schema:
+        type: integer
+        minimum: 0
+      example: 42
+
+  responses:
+    ValidationError:
+      description: The request body or parameters are invalid (`VALIDATION_ERROR`).
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/X-Request-ID"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: VALIDATION_ERROR
+              message: The request contains invalid fields.
+              requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+              details:
+                - field: name
+                  issue: must not be empty
+    Unauthenticated:
+      description: The Firebase ID token is missing, malformed, expired or invalid (`UNAUTHENTICATED`).
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/X-Request-ID"
+        WWW-Authenticate:
+          description: Always `Bearer`.
+          schema:
+            type: string
+          example: Bearer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: UNAUTHENTICATED
+              message: Please sign in to continue.
+              requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+    ItemNotFound:
+      description: The item doesn't exist or doesn't belong to the user (`ITEM_NOT_FOUND`).
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/X-Request-ID"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: ITEM_NOT_FOUND
+              message: The item was not found.
+              requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+    ItemLimitReached:
+      description: |
+        Creating the item(s) would push the list past the maximum number of items per
+        user (`ITEM_LIMIT_REACHED`). The limit is set by the backend (example default: 200).
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/X-Request-ID"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: ITEM_LIMIT_REACHED
+              message: Your shopping list is full. Remove some items first.
+              requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+    PayloadTooLarge:
+      description: The request body is larger than the allowed size (`PAYLOAD_TOO_LARGE`, example limit 16 KiB).
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/X-Request-ID"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: PAYLOAD_TOO_LARGE
+              message: The request is too large.
+              requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+    UnsupportedMediaType:
+      description: The request body isn't `application/json` (`UNSUPPORTED_MEDIA_TYPE`).
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/X-Request-ID"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: UNSUPPORTED_MEDIA_TYPE
+              message: The request body must be JSON.
+              requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+    RateLimitExceeded:
+      description: The user's rate limit is exhausted (`RATE_LIMIT_EXCEEDED`).
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/X-Request-ID"
+        Retry-After:
+          $ref: "#/components/headers/Retry-After"
+        RateLimit-Limit:
+          $ref: "#/components/headers/RateLimit-Limit"
+        RateLimit-Remaining:
+          $ref: "#/components/headers/RateLimit-Remaining"
+        RateLimit-Reset:
+          $ref: "#/components/headers/RateLimit-Reset"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: RATE_LIMIT_EXCEEDED
+              message: Too many requests. Please wait a moment and try again.
+              requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+              retryAfterSeconds: 42
+    InternalError:
+      description: Unexpected server-side error (`INTERNAL_ERROR`). The response contains no internal details.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/X-Request-ID"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: INTERNAL_ERROR
+              message: Something went wrong. Please try again later.
+              requestId: 7c1e2f9a-3b4d-4e5f-8a6b-1c2d3e4f5a6b
+
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          const: ok
+
+    ItemId:
+      type: string
+      description: Item ID assigned by the backend (for example a Firestore document ID). Clients treat it as opaque.
+      pattern: "^[A-Za-z0-9_-]{1,64}$"
+      examples:
+        - 3fQk9ZbXc1LmN0pR7sTu
+
+    ItemName:
+      type: string
+      description: |
+        Name of the item, as plain text. The backend trims leading and trailing
+        whitespace, then checks the length. Control characters aren't allowed. The
+        frontend must always render it as text, never as HTML.
+      minLength: 1
+      maxLength: 100
+      pattern: "\\S"
+      examples:
+        - Milk
+
+    ItemSource:
+      type: string
+      description: |
+        Where the item came from. `manual` means the user typed it. `ai_recommendation`
+        means it is an accepted AI recommendation. The frontend may use this to mark
+        such items in the list.
+      enum: [manual, ai_recommendation]
+      default: manual
+
+    Item:
+      type: object
+      additionalProperties: false
+      required: [id, name, source]
+      properties:
+        id:
+          $ref: "#/components/schemas/ItemId"
+        name:
+          $ref: "#/components/schemas/ItemName"
+        source:
+          $ref: "#/components/schemas/ItemSource"
+
+    NewItem:
+      type: object
+      additionalProperties: false
+      description: Item to create. Unknown fields are rejected with `VALIDATION_ERROR`.
+      required: [name]
+      properties:
+        name:
+          $ref: "#/components/schemas/ItemName"
+        source:
+          $ref: "#/components/schemas/ItemSource"
+
+    NewItemBatch:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items:
+            $ref: "#/components/schemas/NewItem"
+
+    ItemList:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Item"
+
+    RecommendationRequest:
+      type: object
+      additionalProperties: false
+      required: [prompt]
+      properties:
+        prompt:
+          type: string
+          description: |
+            Free-text description of what the user wants to eat. The backend trims it and
+            counts its length in Unicode characters. An empty prompt gets `PROMPT_EMPTY`.
+            A prompt over the limit gets `PROMPT_TOO_LONG`. The prompt is then checked for
+            prompt injection (`PROMPT_REJECTED`). The backend doesn't log the prompt by
+            default.
+          maxLength: 500
+          examples:
+            - I want to cook spaghetti bolognese for four people tonight.
+
+    Recommendation:
+      type: object
+      additionalProperties: false
+      description: |
+        A single AI-recommended item, normalized and validated by the backend. The
+        model can only supply the item name. The backend drops any other model
+        output. The field rules match those of `NewItem`, so a recommendation can be
+        sent to `POST /items` unchanged, plus `source: ai_recommendation`.
+      required: [name]
+      properties:
+        name:
+          $ref: "#/components/schemas/ItemName"
+
+    RecommendationResponse:
+      type: object
+      additionalProperties: false
+      required: [recommendations, disclaimer]
+      properties:
+        recommendations:
+          type: array
+          maxItems: 20
+          items:
+            $ref: "#/components/schemas/Recommendation"
+        disclaimer:
+          type: string
+          description: |
+            Fixed text set by the backend (never produced by the model), saying that
+            AI-generated suggestions may contain mistakes. The frontend must show it
+            together with the recommendations.
+          examples:
+            - >-
+              These suggestions were generated by AI and may contain mistakes.
+              Please review them before adding them to your list.
+
+    ErrorCode:
+      type: string
+      description: Machine-readable error code. See the table in the API description.
+      enum:
+        - VALIDATION_ERROR
+        - PROMPT_EMPTY
+        - PROMPT_TOO_LONG
+        - UNAUTHENTICATED
+        - ITEM_NOT_FOUND
+        - NOT_FOUND
+        - METHOD_NOT_ALLOWED
+        - ITEM_LIMIT_REACHED
+        - PAYLOAD_TOO_LARGE
+        - UNSUPPORTED_MEDIA_TYPE
+        - PROMPT_REJECTED
+        - RATE_LIMIT_EXCEEDED
+        - INTERNAL_ERROR
+        - AI_INVALID_RESPONSE
+        - AI_UNAVAILABLE
+        - AI_TIMEOUT
+
+    FieldError:
+      type: object
+      additionalProperties: false
+      required: [field, issue]
+      properties:
+        field:
+          type: string
+          description: Path of the offending field, for example `name` or `items[2].name`.
+          maxLength: 100
+        issue:
+          type: string
+          description: Short description of the problem.
+          maxLength: 200
+
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: Uniform error body that every error response uses.
+      required: [error]
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required: [code, message, requestId]
+          properties:
+            code:
+              $ref: "#/components/schemas/ErrorCode"
+            message:
+              type: string
+              description: Short message that is safe to show to users. It never contains internal details, prompt content or model output.
+              maxLength: 300
+            requestId:
+              type: string
+              description: Same value as the `X-Request-ID` response header.
+              maxLength: 64
+            details:
+              type: array
+              description: Only present for `VALIDATION_ERROR`. Lists the invalid fields.
+              maxItems: 50
+              items:
+                $ref: "#/components/schemas/FieldError"
+            retryAfterSeconds:
+              type: integer
+              minimum: 0
+              description: Only present for `RATE_LIMIT_EXCEEDED`. Same value as the `Retry-After` header.
