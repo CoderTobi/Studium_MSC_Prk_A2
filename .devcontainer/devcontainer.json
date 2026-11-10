@@ -28,7 +28,8 @@
         "charliermarsh.ruff",
         "svelte.svelte-vscode",
         "bradlc.vscode-tailwindcss",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "42crunch.vscode-openapi"
       ],
       "settings": {
         "python.defaultInterpreterPath": "${containerWorkspaceFolder}/backend/.venv/bin/python",
