@@ -37,6 +37,7 @@
 - The backend should have configuration options for:
     - The URL of the Ollama Server
     - Model to use
+    - Option to disable authentication verification for testing and debugging
 
 ## Logging
 - The Backend should log which model was used and how many tokens it burned
