@@ -29,7 +29,8 @@
         "svelte.svelte-vscode",
         "bradlc.vscode-tailwindcss",
         "esbenp.prettier-vscode",
-        "42crunch.vscode-openapi"
+        "42crunch.vscode-openapi",
+        "anthropic.claude-code"
       ],
       "settings": {
         "python.defaultInterpreterPath": "${containerWorkspaceFolder}/backend/.venv/bin/python",
