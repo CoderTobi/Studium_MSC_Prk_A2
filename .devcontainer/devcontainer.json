@@ -6,7 +6,7 @@
   "build": { "dockerfile": "Dockerfile" },
 
   "features": {
-    "ghcr.io/devcontainers/features/node:1": { "version": "24" }
+    "ghcr.io/devcontainers/features/node:2": { "version": "24" }
   },
 
   // Ollama runs on the host OS, reachable from here at http://host.docker.internal:11434
