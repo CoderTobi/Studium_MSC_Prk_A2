@@ -7,3 +7,6 @@ RUN python -m pip install --no-cache-dir --upgrade "pip>=26.2.2"
 
 # uv: Python package/venv manager (pyproject.toml + uv.lock)
 COPY --from=ghcr.io/astral-sh/uv:0.13 /uv /uvx /usr/local/bin/
+
+# create the folder ahead of time so the volume is owned by vscode and not root. Otherwise Claude can't write to it
+RUN mkdir -p /home/vscode/.claude && chown -R vscode:vscode /home/vscode/.claude

@@ -21,6 +21,17 @@
 
   "postCreateCommand": "bash .devcontainer/post-create.sh",
 
+  "mounts": [
+    // Claude config volume (for the anthropic.claude-code extension)
+    // Keeps sign-in state and other settings across container rebuilds.
+    "source=claude-code-config-${devcontainerId},target=/home/vscode/.claude,type=volume"
+  ],
+  "containerEnv": {
+    // Claude config dir (for the anthropic.claude-code extension)
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude"
+  },
+
+
   "customizations": {
     "vscode": {
       "extensions": [
