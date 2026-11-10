@@ -67,3 +67,6 @@
 ## Other
 - The prototype in `/prototype` should be ignored and not used as reference
 - API Keys and secrets should never be tracked by git and should live in seprate files
+- Beware of emudhra certificate incident
+    - at least pip 26.2.2 or higher
+    - at least uv 0.13.4 or higher 
