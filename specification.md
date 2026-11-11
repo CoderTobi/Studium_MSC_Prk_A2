@@ -66,8 +66,9 @@
 
 
 ## Other
-- The prototype in `/prototype` should be ignored and not used as reference
-- API Keys and secrets should never be tracked by git and should live in seprate files
+- The prototype in `/prototype` must be ignored and not used as reference
+- AI agents like claude must ignore the `.drawio` files 
+- API Keys and secrets must never be tracked by git and should live in seprate files
 - Beware of emudhra certificate incident
     - at least pip 26.2.2 or higher
     - at least uv 0.13.4 or higher 
