@@ -3,8 +3,8 @@
 - See [GH repo](https://github.com/CoderTobi/Studium_MSC_Prk_A2)
 ## Devcontainer Setup
 - Install WSL 2
-- Update the distro `sudo apt update` und `sudo apt upgrade`
 - Install Distro (I use Debian, but I guess Ubuntu is fine too)
+- Update the distro `sudo apt update` und `sudo apt upgrade`
 - Install Docker Desktop in WSL mode [Download here](https://docs.docker.com/desktop/setup/install/windows-install/)
     - If you have problems when staring the container, maybe select the distro manually in Docker Desktop
         - The Setting is called `Enable integration with additional distros`
