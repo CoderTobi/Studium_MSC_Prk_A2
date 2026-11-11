@@ -13,3 +13,7 @@
 - Reopen in Dev Container:
     - Crtl + Shift + P
     - "Dev Containers: Reopen in Container"
+### Troubleshooting
+- I have rebooted my Windows pc and now I get an error when opening VSCode in the devcontainer
+    - It starts docker desktop automatically, but it takes too long
+    - Start Docker Desktop manually and wait for the engine to start before you open VSCode
