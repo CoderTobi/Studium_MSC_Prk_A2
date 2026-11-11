@@ -1,0 +1,17 @@
+# Only pyproject.toml, uv.lock and src/ are needed in the image.
+.venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+tests/
+Dockerfile
+.dockerignore
+README.md
+
+# Secrets must never end up in an image layer.
+.env
+.env.*
+secrets/
+*firebase-adminsdk*.json
+serviceAccount*.json

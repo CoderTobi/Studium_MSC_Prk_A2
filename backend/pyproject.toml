@@ -1,0 +1,35 @@
+[project]
+name = "shopping-list-backend"
+version = "0.1.0"
+description = "Backend of the AI supported shopping list"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.162.4",
+    "google-cloud-firestore>=2.34.1",
+    "uvicorn>=0.54.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.4,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "shopping_list"
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.16.0",
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
