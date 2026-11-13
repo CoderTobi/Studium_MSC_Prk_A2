@@ -1,0 +1,15 @@
+# Only package.json, package-lock.json, the config files, src/ and static/ are needed.
+node_modules/
+.svelte-kit/
+build/
+.vscode/
+Dockerfile
+.dockerignore
+README.md
+**/*.test.ts
+**/*.spec.ts
+
+# Secrets and local configuration must never end up in an image layer.
+.env
+.env.*
+!.env.example

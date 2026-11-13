@@ -1,6 +1,7 @@
 # AI supported shoppig list Repo
 - See [specification](specification.md)
 - See [backend](backend/README.md) for setup, configuration and running the backend
+- See [frontend](frontend/README.md) for setup, configuration and running the frontend
 - See [GH repo](https://github.com/CoderTobi/Studium_MSC_Prk_A2)
 ## Devcontainer Setup
 - Install WSL 2
