@@ -3,19 +3,24 @@
 Pipeline (see the API description):
 
 1. Prompt validation: trim, limit the length (``PROMPT_EMPTY``, ``PROMPT_TOO_LONG``)
-2. Prompt injection check (``PROMPT_REJECTED``)           -> added with the Ollama step
-3. Model call with a server-side timeout                    -> added with the Ollama step
-4. Response validation and parsing (``AI_INVALID_RESPONSE``) -> added with the Ollama step
+2. Prompt injection check (``PROMPT_REJECTED``), see ``prompt_guard.py``
+3. Model call with a server-side timeout (``AI_TIMEOUT``, ``AI_UNAVAILABLE``),
+   see ``ollama.py``
+4. Response validation and parsing (``AI_INVALID_RESPONSE``), see
+   ``parse_recommendations`` below
 
-There is no connection to Ollama yet. ``UnavailableAIClient`` is the only
-``AIClient`` and always fails with ``AI_UNAVAILABLE``, so the endpoint already
-behaves like the final one when Ollama is down.
+Only item names that pass a strict allowlist ever leave the backend. Everything else
+the model produces is dropped, and the raw model output is never returned or logged.
 """
 
-from typing import Protocol
+import json
+import re
+import unicodedata
+from typing import Any, Protocol
 
 from shopping_list.errors import ApiError, ErrorCode
-from shopping_list.models import Recommendation, RecommendationResponse
+from shopping_list.models import BATCH_MAX_ITEMS, Recommendation, RecommendationResponse
+from shopping_list.prompt_guard import check_prompt
 
 # Fixed text, never produced by the model.
 DISCLAIMER = (
@@ -23,18 +28,32 @@ DISCLAIMER = (
     "Please review them before adding them to your list."
 )
 
+# Same as the batch limit, so all recommendations can be accepted with one
+# ``POST /items/batch``. Also the ``maxItems`` of ``RecommendationResponse``.
+MAX_RECOMMENDATIONS = BATCH_MAX_ITEMS
+
+# Stricter than ``ItemName`` (100): grocery items are short, and the shorter the
+# limit, the less room there is for abusive model output.
+RECOMMENDATION_NAME_MAX_LENGTH = 60
+
+# Longer model output is not parsed at all (``AI_INVALID_RESPONSE``). 20 short names
+# as JSON are far below this.
+MAX_MODEL_OUTPUT_CHARS = 8000
+
+# Characters allowed in an item name besides letters, combining marks, digits and
+# spaces. Enough for "Crème fraîche", "Salt & pepper", "Tomatoes (canned)", "1.5% milk".
+_ALLOWED_PUNCTUATION = frozenset(" -'&,.()/%+")
+
+# List markers the model sometimes puts in front of names ("- Milk", "1. Milk").
+_LIST_MARKER = re.compile(r"^(?:[-*•]+|\d{1,2}[.)])\s+")
+# Web addresses and domain names, so the model can't advertise links.
+_URL_LIKE = re.compile(r"https?|www\.|[a-z]\.[a-z]{2,}", re.IGNORECASE)
+
 
 class AIClient(Protocol):
     def recommend(self, prompt: str) -> list[Recommendation]:
         """Ask the model for item recommendations for an already validated prompt."""
         ...
-
-
-class UnavailableAIClient:
-    """Placeholder until the Ollama client exists."""
-
-    def recommend(self, prompt: str) -> list[Recommendation]:
-        raise ApiError(ErrorCode.AI_UNAVAILABLE)
 
 
 def validate_prompt(prompt: str, max_length: int) -> str:
@@ -50,12 +69,83 @@ def validate_prompt(prompt: str, max_length: int) -> str:
     return prompt
 
 
+def normalize_recommendation_name(value: Any) -> str | None:
+    """Turn one model-supplied name into a safe item name, or ``None`` to drop it.
+
+    The result is always a valid ``ItemName`` (see ``models.py``), so it can be sent
+    to ``POST /items`` unchanged.
+    """
+    if not isinstance(value, str):
+        return None
+    name = unicodedata.normalize("NFKC", value)
+    name = " ".join(name.split())  # also turns tabs and newlines into single spaces
+    name = _LIST_MARKER.sub("", name).strip(" .,")
+    if not name or len(name) > RECOMMENDATION_NAME_MAX_LENGTH:
+        return None
+    for char in name:
+        if char not in _ALLOWED_PUNCTUATION and unicodedata.category(char)[0] not in "LMN":
+            return None
+    if not any(char.isalpha() for char in name) or _URL_LIKE.search(name):
+        return None
+    return name
+
+
+def _load_json(text: str) -> Any:
+    """Parse the model output as JSON, tolerating a Markdown fence around it."""
+    candidates = [text]
+    start, end = text.find("{"), text.rfind("}")
+    if 0 <= start < end:
+        candidates.append(text[start : end + 1])
+    for candidate in candidates:
+        try:
+            return json.loads(candidate)
+        except ValueError:
+            continue
+    raise ApiError(ErrorCode.AI_INVALID_RESPONSE)
+
+
+def parse_recommendations(output: str) -> list[Recommendation]:
+    """Parse the model output into at most ``MAX_RECOMMENDATIONS`` recommendations.
+
+    Expected (and enforced through the JSON schema in ``ollama.py``)::
+
+        {"items": [{"name": "Spaghetti"}, {"name": "Tomatoes"}]}
+
+    Plain strings instead of objects are accepted too. Entries whose name can't be
+    normalized are dropped, as are duplicates and every field except ``name``. If the
+    output has no such structure at all, ``AI_INVALID_RESPONSE`` is raised. An empty
+    list is a valid result.
+    """
+    if len(output) > MAX_MODEL_OUTPUT_CHARS:
+        raise ApiError(ErrorCode.AI_INVALID_RESPONSE)
+    data = _load_json(output.strip())
+    entries = data.get("items") if isinstance(data, dict) else None
+    if not isinstance(entries, list):
+        raise ApiError(ErrorCode.AI_INVALID_RESPONSE)
+
+    result: list[Recommendation] = []
+    seen: set[str] = set()
+    for entry in entries:
+        raw_name = entry.get("name") if isinstance(entry, dict) else entry
+        name = normalize_recommendation_name(raw_name)
+        if name is None or name.casefold() in seen:
+            continue
+        seen.add(name.casefold())
+        result.append(Recommendation(name=name))
+        if len(result) == MAX_RECOMMENDATIONS:
+            break
+    return result
+
+
 class RecommendationService:
     def __init__(self, ai_client: AIClient, prompt_max_length: int) -> None:
-        self._ai_client = ai_client
+        self.ai_client = ai_client
         self._prompt_max_length = prompt_max_length
 
     def recommend(self, prompt: str) -> RecommendationResponse:
         prompt = validate_prompt(prompt, self._prompt_max_length)
-        recommendations = self._ai_client.recommend(prompt)
-        return RecommendationResponse(recommendations=recommendations, disclaimer=DISCLAIMER)
+        check_prompt(prompt)
+        recommendations = self.ai_client.recommend(prompt)
+        return RecommendationResponse(
+            recommendations=recommendations[:MAX_RECOMMENDATIONS], disclaimer=DISCLAIMER
+        )

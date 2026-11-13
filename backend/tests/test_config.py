@@ -16,6 +16,9 @@ def test_defaults_without_env():
     assert settings.rate_limit_general_per_minute == 60
     assert settings.rate_limit_ai_per_minute == 10
     assert settings.log_level == "INFO"
+    assert settings.ollama_url == "http://localhost:11434"
+    assert settings.ollama_model == "llama3.2"
+    assert settings.ollama_timeout_seconds == 30
 
 
 def test_reads_os_environ_by_default(monkeypatch):
@@ -36,6 +39,9 @@ def test_all_values_parsed():
             "RATE_LIMIT_GENERAL_PER_MINUTE": "30",
             "RATE_LIMIT_AI_PER_MINUTE": "3",
             "LOG_LEVEL": "debug",
+            "OLLAMA_URL": " http://host.docker.internal:11434/ ",
+            "OLLAMA_MODEL": "qwen2.5:7b",
+            "OLLAMA_TIMEOUT_SECONDS": "60",
         }
     )
     assert settings == Settings(
@@ -49,6 +55,9 @@ def test_all_values_parsed():
         rate_limit_general_per_minute=30,
         rate_limit_ai_per_minute=3,
         log_level="DEBUG",
+        ollama_url="http://host.docker.internal:11434",
+        ollama_model="qwen2.5:7b",
+        ollama_timeout_seconds=60,
     )
 
 
@@ -91,6 +100,7 @@ def test_invalid_bool(raw):
         "PROMPT_MAX_LENGTH",
         "RATE_LIMIT_GENERAL_PER_MINUTE",
         "RATE_LIMIT_AI_PER_MINUTE",
+        "OLLAMA_TIMEOUT_SECONDS",
     ],
 )
 @pytest.mark.parametrize("raw", ["abc", "1.5", "0", "-1"])
@@ -103,6 +113,27 @@ def test_invalid_int(name, raw):
 def test_invalid_log_level(raw):
     with pytest.raises(ConfigError, match="LOG_LEVEL"):
         Settings.from_env({"LOG_LEVEL": raw})
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "localhost:11434",
+        "ftp://localhost:11434",
+        "http://",
+        "file:///etc/passwd",
+        "http://localhost:11434/?x=1",
+        "http://localhost:11434/#x",
+    ],
+)
+def test_invalid_ollama_url(raw):
+    with pytest.raises(ConfigError, match="OLLAMA_URL"):
+        Settings.from_env({"OLLAMA_URL": raw})
+
+
+def test_https_ollama_url_with_path():
+    settings = Settings.from_env({"OLLAMA_URL": "https://ollama.example/proxy/"})
+    assert settings.ollama_url == "https://ollama.example/proxy"
 
 
 def test_settings_are_immutable():

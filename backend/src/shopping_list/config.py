@@ -7,6 +7,7 @@ refuse to start instead of silently falling back to a default.
 import os
 from collections.abc import Mapping
 from dataclasses import dataclass
+from urllib.parse import urlsplit
 
 
 class ConfigError(Exception):
@@ -49,6 +50,16 @@ def _get_str(env: Mapping[str, str], name: str, default: str | None) -> str | No
     return raw.strip()
 
 
+def _get_http_url(env: Mapping[str, str], name: str, default: str) -> str:
+    raw = _get_str(env, name, default) or default
+    parts = urlsplit(raw)
+    if parts.scheme not in {"http", "https"} or not parts.netloc:
+        raise ConfigError(f"{name} must be an http(s) URL, got {raw!r}")
+    if parts.query or parts.fragment:
+        raise ConfigError(f"{name} must not contain a query or fragment, got {raw!r}")
+    return raw.rstrip("/")
+
+
 def _get_list(env: Mapping[str, str], name: str, default: tuple[str, ...]) -> tuple[str, ...]:
     raw = env.get(name)
     if raw is None:
@@ -75,6 +86,11 @@ class Settings:
     prompt_max_length: int = 500
     rate_limit_general_per_minute: int = 60
     rate_limit_ai_per_minute: int = 10
+
+    # Ollama (runs on the host OS, outside of Docker)
+    ollama_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.2"
+    ollama_timeout_seconds: int = 30
 
     # Logging
     log_level: str = "INFO"
@@ -105,6 +121,12 @@ class Settings:
             ),
             rate_limit_ai_per_minute=_get_positive_int(
                 env, "RATE_LIMIT_AI_PER_MINUTE", defaults.rate_limit_ai_per_minute
+            ),
+            ollama_url=_get_http_url(env, "OLLAMA_URL", defaults.ollama_url),
+            ollama_model=_get_str(env, "OLLAMA_MODEL", defaults.ollama_model)
+            or defaults.ollama_model,
+            ollama_timeout_seconds=_get_positive_int(
+                env, "OLLAMA_TIMEOUT_SECONDS", defaults.ollama_timeout_seconds
             ),
             log_level=log_level,
         )
