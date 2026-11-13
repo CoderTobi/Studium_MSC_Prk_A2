@@ -12,7 +12,6 @@ import pytest
 
 from shopping_list.errors import ApiError, ErrorCode
 from shopping_list.ollama import (
-    MAX_OUTPUT_TOKENS,
     MAX_RESPONSE_BYTES,
     RESPONSE_SCHEMA,
     SYSTEM_PROMPT,
@@ -21,6 +20,7 @@ from shopping_list.ollama import (
 from tests.conftest import UNREACHABLE_OLLAMA_URL
 
 MODEL = "test-model:1b"
+MAX_OUTPUT_TOKENS = 512
 
 
 def chat_response(content: str, **extra: Any) -> dict[str, Any]:
@@ -90,7 +90,7 @@ def ollama() -> Iterator[FakeOllama]:
 
 
 def make(fake: FakeOllama, timeout: float = 5) -> OllamaClient:
-    return OllamaClient(fake.url, MODEL, timeout)
+    return OllamaClient(fake.url, MODEL, timeout, max_output_tokens=MAX_OUTPUT_TOKENS, think=None)
 
 
 def error_code(fn) -> ErrorCode:
@@ -118,7 +118,9 @@ class TestRequest:
         assert "<meal_request>\nspaghetti bolognese\n</meal_request>" in user["content"]
 
     def test_trailing_slash_in_base_url(self, ollama):
-        OllamaClient(ollama.url + "/", MODEL, 5).recommend("pasta")
+        OllamaClient(
+            ollama.url + "/", MODEL, 5, max_output_tokens=MAX_OUTPUT_TOKENS, think=None
+        ).recommend("pasta")
         assert ollama.paths == ["/api/chat"]
 
     def test_ignores_proxy_environment(self, ollama, monkeypatch):
@@ -129,7 +131,9 @@ class TestRequest:
 
 class TestErrors:
     def test_unreachable(self):
-        client = OllamaClient(UNREACHABLE_OLLAMA_URL, MODEL, 5)
+        client = OllamaClient(
+            UNREACHABLE_OLLAMA_URL, MODEL, 5, max_output_tokens=MAX_OUTPUT_TOKENS, think=None
+        )
         assert error_code(lambda: client.recommend("pasta")) is ErrorCode.AI_UNAVAILABLE
 
     def test_timeout(self, ollama):

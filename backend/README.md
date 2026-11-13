@@ -107,6 +107,8 @@ full list with defaults. The most important ones:
 | `OLLAMA_URL` | `http://localhost:11434` | Base URL of the Ollama server |
 | `OLLAMA_MODEL` | `llama3.2` | Model used for recommendations |
 | `OLLAMA_TIMEOUT_SECONDS` | `30` | Server-side timeout per model call |
+| `OLLAMA_MAX_OUTPUT_TOKENS` | `2048` | Max generated tokens per model call, including the thinking of thinking models |
+| `OLLAMA_THINK` | (model default) | `false` turns thinking off for thinking models, `true` forces it |
 
 ## Code structure
 

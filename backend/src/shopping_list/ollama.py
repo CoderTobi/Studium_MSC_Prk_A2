@@ -10,7 +10,9 @@ Hardening against prompt injection and abusive output (together with
 * Fixed system prompt. The user prompt goes into the user message, wrapped in
   ``<meal_request>`` tags and labelled as data, never as instructions.
 * ``format`` forces the model into a JSON schema with only item names.
-* ``num_predict`` limits the number of generated tokens, so the output stays short.
+* ``num_predict`` limits the number of generated tokens, so the output stays short
+  (``OLLAMA_MAX_OUTPUT_TOKENS``). Thinking models count their thinking tokens too;
+  ``OLLAMA_THINK=false`` turns thinking off.
 * The HTTP response body and the model output are size limited before parsing.
 
 Failures map to the defined error codes: unreachable server, HTTP errors and a
@@ -40,8 +42,6 @@ from shopping_list.recommendations import (
 
 logger = get_logger("ollama")
 
-# Upper bound for generated tokens. 20 names as JSON need about 250.
-MAX_OUTPUT_TOKENS = 512
 # Upper bound for the HTTP response body of /api/chat.
 MAX_RESPONSE_BYTES = 256 * 1024
 
@@ -101,22 +101,36 @@ def _token_count(value: Any) -> int:
 class OllamaClient:
     """``AIClient`` that asks an Ollama model for recommendations."""
 
-    def __init__(self, base_url: str, model: str, timeout_seconds: float) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        model: str,
+        timeout_seconds: float,
+        max_output_tokens: int,
+        think: bool | None,
+    ) -> None:
         self._chat_url = f"{base_url.rstrip('/')}/api/chat"
         self._model = model
         self._timeout = timeout_seconds
+        # Ollama's num_predict. 20 names as JSON need about 250 tokens, thinking models
+        # need several hundred more for their thinking.
+        self._max_output_tokens = max_output_tokens
+        # None: don't send "think", the model's default applies.
+        self._think = think
         # Ollama is a local service: never route the requests through a proxy from
         # the environment (HTTP_PROXY etc.).
         self._opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
     def recommend(self, prompt: str) -> list[Recommendation]:
-        payload = {
+        payload: dict[str, Any] = {
             "model": self._model,
             "messages": build_messages(prompt),
             "stream": False,
             "format": RESPONSE_SCHEMA,
-            "options": {"temperature": 0.2, "num_predict": MAX_OUTPUT_TOKENS},
+            "options": {"temperature": 0.2, "num_predict": self._max_output_tokens},
         }
+        if self._think is not None:
+            payload["think"] = self._think
         started = time.perf_counter()
         body = self._post(payload)
         duration_ms = (time.perf_counter() - started) * 1000
@@ -140,7 +154,7 @@ class OllamaClient:
         try:
             return parse_recommendations(content)
         except ApiError:
-            # done_reason "length" means the output hit MAX_OUTPUT_TOKENS.
+            # done_reason "length" means the output hit OLLAMA_MAX_OUTPUT_TOKENS.
             done_reason = envelope.get("done_reason")
             logger.warning(
                 "Model output could not be parsed into recommendations (model=%s, done_reason=%s)",

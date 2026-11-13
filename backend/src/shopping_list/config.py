@@ -18,16 +18,22 @@ _TRUE = {"1", "true", "yes", "on"}
 _FALSE = {"0", "false", "no", "off"}
 
 
-def _get_bool(env: Mapping[str, str], name: str, default: bool) -> bool:
+def _get_optional_bool(env: Mapping[str, str], name: str) -> bool | None:
+    """Like ``_get_bool``, but an unset or empty variable gives ``None``."""
     raw = env.get(name)
     if raw is None or raw.strip() == "":
-        return default
+        return None
     value = raw.strip().lower()
     if value in _TRUE:
         return True
     if value in _FALSE:
         return False
     raise ConfigError(f"{name} must be a boolean (true/false), got {raw!r}")
+
+
+def _get_bool(env: Mapping[str, str], name: str, default: bool) -> bool:
+    value = _get_optional_bool(env, name)
+    return default if value is None else value
 
 
 def _get_positive_int(env: Mapping[str, str], name: str, default: int) -> int:
@@ -91,6 +97,12 @@ class Settings:
     ollama_url: str = "http://localhost:11434"
     ollama_model: str = "llama3.2"
     ollama_timeout_seconds: int = 30
+    # Upper bound for generated tokens per model call (Ollama's ``num_predict``).
+    # Thinking models count their thinking tokens too.
+    ollama_max_output_tokens: int = 2048
+    # Ollama's ``think`` option: None = model default (not sent), False = thinking
+    # models answer without thinking first, True = force thinking.
+    ollama_think: bool | None = None
 
     # Logging
     log_level: str = "INFO"
@@ -128,5 +140,9 @@ class Settings:
             ollama_timeout_seconds=_get_positive_int(
                 env, "OLLAMA_TIMEOUT_SECONDS", defaults.ollama_timeout_seconds
             ),
+            ollama_max_output_tokens=_get_positive_int(
+                env, "OLLAMA_MAX_OUTPUT_TOKENS", defaults.ollama_max_output_tokens
+            ),
+            ollama_think=_get_optional_bool(env, "OLLAMA_THINK"),
             log_level=log_level,
         )

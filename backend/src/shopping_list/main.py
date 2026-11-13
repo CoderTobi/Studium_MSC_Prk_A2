@@ -64,10 +64,12 @@ def create_app(
             )
         if isinstance(app.state.recommendation_service.ai_client, OllamaClient):
             logger.info(
-                "Using Ollama at %s with model %r (timeout %ss)",
+                "Using Ollama at %s with model %r (timeout %ss, max output tokens %d, think %s)",
                 settings.ollama_url,
                 settings.ollama_model,
                 settings.ollama_timeout_seconds,
+                settings.ollama_max_output_tokens,
+                "model default" if settings.ollama_think is None else settings.ollama_think,
             )
         yield
 
@@ -94,7 +96,11 @@ def create_app(
     )
     if ai_client is None:
         ai_client = OllamaClient(
-            settings.ollama_url, settings.ollama_model, settings.ollama_timeout_seconds
+            settings.ollama_url,
+            settings.ollama_model,
+            settings.ollama_timeout_seconds,
+            max_output_tokens=settings.ollama_max_output_tokens,
+            think=settings.ollama_think,
         )
     app.state.recommendation_service = RecommendationService(ai_client, settings.prompt_max_length)
 
