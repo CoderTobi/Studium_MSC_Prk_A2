@@ -10,7 +10,7 @@
 
 ## Frontend
 - The Web App should have a valid Impressum
-- The Web should have a responsive UI
+- The Web App should have a responsive UI
 
 ## Backend
 - The items should be stored on the backend inside the Database
