@@ -20,8 +20,9 @@ from shopping_list.middleware import (
     JSONCORSMiddleware,
     RequestContextMiddleware,
 )
+from shopping_list.ollama import OllamaClient
 from shopping_list.rate_limit import Bucket, RateLimiter
-from shopping_list.recommendations import AIClient, RecommendationService, UnavailableAIClient
+from shopping_list.recommendations import AIClient, RecommendationService
 from shopping_list.repository import (
     FirestoreItemRepository,
     ItemRepository,
@@ -61,6 +62,15 @@ def create_app(
                 client.project,
                 settings.firestore_database,
             )
+        if isinstance(app.state.recommendation_service.ai_client, OllamaClient):
+            logger.info(
+                "Using Ollama at %s with model %r (timeout %ss, max output tokens %d, think %s)",
+                settings.ollama_url,
+                settings.ollama_model,
+                settings.ollama_timeout_seconds,
+                settings.ollama_max_output_tokens,
+                "model default" if settings.ollama_think is None else settings.ollama_think,
+            )
         yield
 
     app = FastAPI(
@@ -84,9 +94,15 @@ def create_app(
             Bucket.AI: settings.rate_limit_ai_per_minute,
         }
     )
-    app.state.recommendation_service = RecommendationService(
-        ai_client or UnavailableAIClient(), settings.prompt_max_length
-    )
+    if ai_client is None:
+        ai_client = OllamaClient(
+            settings.ollama_url,
+            settings.ollama_model,
+            settings.ollama_timeout_seconds,
+            max_output_tokens=settings.ollama_max_output_tokens,
+            think=settings.ollama_think,
+        )
+    app.state.recommendation_service = RecommendationService(ai_client, settings.prompt_max_length)
 
     register_exception_handlers(app)
 

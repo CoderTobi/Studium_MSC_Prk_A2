@@ -1,17 +1,21 @@
 import base64
 import json
-from collections.abc import Callable
+import logging
+from collections.abc import Callable, Iterator
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
 
 from shopping_list.config import Settings
+from shopping_list.logging_setup import LOGGER_NAME
 from shopping_list.main import create_app
 from shopping_list.recommendations import AIClient
 from tests.fakes import InMemoryItemRepository
 
 ClientFactory = Callable[..., TestClient]
+
+UNREACHABLE_OLLAMA_URL = "http://127.0.0.1:9"
 
 
 def _b64(data: bytes) -> str:
@@ -44,7 +48,9 @@ def make_client() -> ClientFactory:
     """Factory: ``make_client(item_limit=3, ai_client=...)`` builds an app and its TestClient.
 
     Keyword arguments other than ``ai_client`` and ``raise_server_exceptions`` are
-    ``Settings`` fields. The repository is available as ``client.app.state.repository``.
+    ``Settings`` fields. Without ``ai_client`` the real ``OllamaClient`` is used, pointed
+    at an unreachable URL unless ``ollama_url`` is given. The repository is available as
+    ``client.app.state.repository``.
     """
 
     def factory(
@@ -53,6 +59,8 @@ def make_client() -> ClientFactory:
         raise_server_exceptions: bool = False,
         **settings: Any,
     ) -> TestClient:
+        # Never talk to a real Ollama by accident: port 9 (discard) refuses connections.
+        settings.setdefault("ollama_url", UNREACHABLE_OLLAMA_URL)
         cfg = Settings(auth_disabled=True, **settings)
         app = create_app(
             cfg, repository=InMemoryItemRepository(cfg.item_limit), ai_client=ai_client
@@ -65,3 +73,15 @@ def make_client() -> ClientFactory:
 @pytest.fixture
 def client(make_client: ClientFactory) -> TestClient:
     return make_client()
+
+
+@pytest.fixture
+def app_logs(caplog: pytest.LogCaptureFixture) -> Iterator[pytest.LogCaptureFixture]:
+    """``caplog`` for the app's loggers, which don't propagate to the root logger."""
+    logger = logging.getLogger(LOGGER_NAME)
+    logger.addHandler(caplog.handler)
+    caplog.set_level(logging.DEBUG, logger=LOGGER_NAME)
+    try:
+        yield caplog
+    finally:
+        logger.removeHandler(caplog.handler)
