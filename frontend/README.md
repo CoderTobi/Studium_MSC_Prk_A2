@@ -13,7 +13,7 @@ the app shell and the configuration.
 | Part                                                             | State                                                                      |
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | Shopping list (list, add, remove)                                | done                                                                       |
-| AI recommendations (prompt, select, accept, discard, disclaimer) | done, the backend currently always answers `AI_UNAVAILABLE`                |
+| AI recommendations (prompt, select, accept, discard, disclaimer) | done                                                                       |
 | Error handling for all API error codes                           | done                                                                       |
 | Impressum                                                        | done, with **fictitious placeholder data** in `src/lib/legal/impressum.ts` |
 | Authentication                                                   | debug mode only (`PUBLIC_AUTH_MODE=debug`), Firebase follows               |
