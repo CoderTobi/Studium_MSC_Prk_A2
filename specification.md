@@ -37,6 +37,8 @@
 - The backend should have configuration options for:
     - The URL of the Ollama Server
     - Model to use
+    - Maximum number of output tokens the model may generate
+    - Option to disable thinking for thinking models
     - Option to disable authentication verification for testing and debugging
 
 ## Logging
