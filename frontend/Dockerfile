@@ -2,7 +2,8 @@
 #
 # Build:  docker build -t shopping-list-frontend frontend/
 # Run:    docker run --rm -p 3000:3000 \
-#           -e PUBLIC_BACKEND_URL=http://localhost:8000 -e PUBLIC_AUTH_MODE=debug \
+#           -e PUBLIC_BACKEND_URL=http://localhost:8000 \
+#           -e PUBLIC_AUTH_MODE=firebase -e PUBLIC_FIREBASE_API_KEY=<web API key> \
 #           shopping-list-frontend
 #
 # The configuration is read when the container starts, so one image works with any

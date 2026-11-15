@@ -2,7 +2,7 @@ import { auth } from '#lib/services.ts';
 
 /**
  * The whole app is rendered in the browser (single-page app):
- * - the Firebase JS SDK, which will handle sign-in, only runs in the browser, and
+ * - the Firebase JS SDK, which handles sign-in, only runs in the browser, and
  * - all data comes from the backend with the user's token, so there is nothing
  *   useful to render on the server.
  */

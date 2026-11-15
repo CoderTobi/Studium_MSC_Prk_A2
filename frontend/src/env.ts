@@ -7,7 +7,7 @@
  * See `.env.example` for an example configuration.
  */
 import { defineEnvVars } from '@sveltejs/kit/env';
-import { parseAuthMode, parseBackendUrl } from '#lib/config/parse.ts';
+import { parseAuthMode, parseBackendUrl, parseFirebaseApiKey } from '#lib/config/parse.ts';
 
 export const variables = defineEnvVars({
 	PUBLIC_BACKEND_URL: {
@@ -17,7 +17,13 @@ export const variables = defineEnvVars({
 	},
 	PUBLIC_AUTH_MODE: {
 		public: true,
-		description: 'How users sign in. Currently only "debug" (no real authentication).',
+		description:
+			'How users sign in: "firebase" (email and password) or "debug" (no real authentication).',
 		schema: parseAuthMode
+	},
+	PUBLIC_FIREBASE_API_KEY: {
+		public: true,
+		description: 'Web API key of the Firebase project. Required for PUBLIC_AUTH_MODE=firebase.',
+		schema: parseFirebaseApiKey
 	}
 });
