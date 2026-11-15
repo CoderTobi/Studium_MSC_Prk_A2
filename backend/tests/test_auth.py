@@ -4,9 +4,7 @@ import json
 import pytest
 
 from shopping_list.auth import DEBUG_UID, UnverifiedTokenAuthenticator, is_valid_uid
-from shopping_list.config import ConfigError, Settings
 from shopping_list.errors import ApiError, ErrorCode
-from shopping_list.main import create_app
 
 
 def b64(data: bytes) -> str:
@@ -166,13 +164,3 @@ class TestOverHttp:
         for _ in range(3):
             assert client.get("/api/v1/items", headers={"Authorization": "x"}).status_code == 401
         assert client.get("/api/v1/items").status_code == 200
-
-
-def test_auth_must_be_disabled_explicitly():
-    with pytest.raises(ConfigError):
-        create_app(Settings(auth_disabled=False))
-
-
-def test_default_settings_do_not_start():
-    with pytest.raises(ConfigError):
-        create_app(Settings())

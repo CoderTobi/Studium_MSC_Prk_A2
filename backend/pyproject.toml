@@ -5,6 +5,7 @@ description = "Backend of the AI supported shopping list"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.162.4",
+    "google-auth>=2.62.2",
     "google-cloud-firestore>=2.34.1",
     "uvicorn>=0.54.0",
 ]

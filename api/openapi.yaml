@@ -15,10 +15,12 @@ info:
       JS SDK). That exchange is not part of this API.
     * Every request to a protected endpoint must send the user's current **Firebase ID
       token** in the header `Authorization: Bearer <token>`.
-    * The backend checks the token's signature, expiry, audience and issuer, using the
-      Firebase Admin SDK. The user identity is **only** the token's `uid` claim. The user
-      ID is never taken from a path, query or body parameter.
-    * Missing, malformed, expired or revoked tokens get `401 UNAUTHENTICATED`.
+    * The backend checks the token's signature, expiry, audience and issuer, following
+      Firebase's rules for verifying ID tokens. The user identity is **only** the token's
+      `uid` (`sub`) claim. The user ID is never taken from a path, query or body parameter.
+    * Missing, malformed, expired or otherwise invalid tokens get `401 UNAUTHENTICATED`.
+      Revocation is not checked, so a revoked token works until it expires (at most one
+      hour).
     * The only endpoint that needs no authentication is `GET /health`.
 
     ### Debug mode (auth verification disabled)
@@ -524,8 +526,8 @@ components:
       description: |
         Firebase Authentication ID token of the signed-in user. The frontend gets it from
         the Firebase JS SDK (`user.getIdToken()`), which also refreshes it before expiry.
-        The backend verifies it with the Firebase Admin SDK, unless verification is
-        turned off for debugging (see the API description).
+        The backend verifies it, unless verification is turned off for debugging (see
+        the API description).
 
   parameters:
     ItemId:

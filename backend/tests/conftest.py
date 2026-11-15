@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
+from shopping_list.auth import Authenticator
 from shopping_list.config import Settings
 from shopping_list.logging_setup import LOGGER_NAME
 from shopping_list.main import create_app
@@ -47,23 +48,30 @@ def auth() -> Callable[[str], dict[str, str]]:
 def make_client() -> ClientFactory:
     """Factory: ``make_client(item_limit=3, ai_client=...)`` builds an app and its TestClient.
 
-    Keyword arguments other than ``ai_client`` and ``raise_server_exceptions`` are
-    ``Settings`` fields. Without ``ai_client`` the real ``OllamaClient`` is used, pointed
-    at an unreachable URL unless ``ollama_url`` is given. The repository is available as
+    Keyword arguments other than ``ai_client``, ``authenticator`` and
+    ``raise_server_exceptions`` are ``Settings`` fields. Without ``authenticator`` the
+    app runs in debug mode (``AUTH_DISABLED=true``). Without ``ai_client`` the real
+    ``OllamaClient`` is used, pointed at an unreachable URL unless ``ollama_url`` is
+    given. The repository is available as
     ``client.app.state.repository``.
     """
 
     def factory(
         *,
         ai_client: AIClient | None = None,
+        authenticator: Authenticator | None = None,
         raise_server_exceptions: bool = False,
         **settings: Any,
     ) -> TestClient:
         # Never talk to a real Ollama by accident: port 9 (discard) refuses connections.
         settings.setdefault("ollama_url", UNREACHABLE_OLLAMA_URL)
-        cfg = Settings(auth_disabled=True, **settings)
+        settings.setdefault("auth_disabled", authenticator is None)
+        cfg = Settings(**settings)
         app = create_app(
-            cfg, repository=InMemoryItemRepository(cfg.item_limit), ai_client=ai_client
+            cfg,
+            repository=InMemoryItemRepository(cfg.item_limit),
+            ai_client=ai_client,
+            authenticator=authenticator,
         )
         return TestClient(app, raise_server_exceptions=raise_server_exceptions)
 

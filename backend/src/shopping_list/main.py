@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from shopping_list.auth import build_authenticator
+from shopping_list.auth import Authenticator, FirebaseTokenAuthenticator, build_authenticator
 from shopping_list.config import Settings
 from shopping_list.errors import RouteMethodIndex, register_exception_handlers
 from shopping_list.logging_setup import configure_logging, get_logger
@@ -40,11 +40,14 @@ def create_app(
     *,
     repository: ItemRepository | None = None,
     ai_client: AIClient | None = None,
+    authenticator: Authenticator | None = None,
 ) -> FastAPI:
-    """Build the app. ``repository`` and ``ai_client`` can be replaced in tests."""
+    """Build the app. ``repository``, ``ai_client`` and ``authenticator`` can be replaced
+    in tests."""
     settings = settings or Settings.from_env()
     configure_logging(settings.log_level)
-    authenticator = build_authenticator(settings)  # refuses to start if not possible
+    if authenticator is None:
+        authenticator = build_authenticator(settings)  # refuses to start if not possible
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -53,6 +56,10 @@ def create_app(
                 "AUTHENTICATION VERIFICATION IS DISABLED (AUTH_DISABLED=true). Tokens are "
                 "not verified and any caller can act as any user. Never use this in "
                 "production."
+            )
+        elif isinstance(app.state.authenticator, FirebaseTokenAuthenticator):
+            logger.info(
+                "Verifying Firebase ID tokens for project %r", app.state.authenticator.project_id
             )
         if app.state.repository is None:
             client = create_firestore_client(settings)
