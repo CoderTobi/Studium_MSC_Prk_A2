@@ -11,7 +11,7 @@ FastAPI backend of the AI supported shopping list. It implements
 | Items API + Firestore | done |
 | Error format, request IDs, CORS, rate limiting, body size limit | done |
 | `POST /recommendations` + Ollama | done: prompt validation, injection check, Ollama call, response parsing, rate limit |
-| Firebase token verification | not implemented; only the debug mode (`AUTH_DISABLED=true`) exists, otherwise the backend refuses to start |
+| Firebase token verification | done, can be turned off for testing (`AUTH_DISABLED=false`) |
 
 ## Setup
 
@@ -46,7 +46,9 @@ subcollection are created with the first item, and no composite indexes are requ
 uv run --env-file .env uvicorn shopping_list.main:create_app --factory --reload --port 8000
 ```
 
-Then try it out (in debug mode without a token, everything belongs to `debug-user`):
+Then try it out. Without a Firebase ID token this only works in debug mode
+(`AUTH_DISABLED=true` in `.env`), where everything without a token belongs to
+`debug-user`:
 
 ```bash
 curl localhost:8000/api/v1/health
@@ -63,6 +65,31 @@ To act as another user in debug mode, send any JWT-shaped token whose payload ha
 TOKEN="e30.$(printf '{"sub":"alice"}' | base64 | tr '+/' '-_' | tr -d '=').x"
 curl localhost:8000/api/v1/items -H "Authorization: Bearer $TOKEN"
 ```
+
+## Authentication
+
+With `AUTH_DISABLED=false` (the default) every endpoint except `/health` needs the
+signed-in user's Firebase ID token as `Authorization: Bearer <token>`. The frontend
+gets it from the Firebase JS SDK (`user.getIdToken()`). `auth.FirebaseTokenAuthenticator`
+runs the checks that Firebase documents for
+[verifying ID tokens](https://firebase.google.com/docs/auth/admin/verify-id-tokens):
+
+* RS256 signature by one of Google's public keys (fetched from `www.googleapis.com` and
+  cached as long as its `Cache-Control` header allows)
+* `exp` in the future, `iat` and `auth_time` in the past (10 s clock skew allowed)
+* `aud` is the project ID and `iss` is `https://securetoken.google.com/<project ID>`
+* `sub` is a valid uid, and it becomes the user's identity
+
+The project ID is `GOOGLE_CLOUD_PROJECT`, or the project of the service account key if
+that is unset. If neither is available, the backend refuses to start. Every failed check
+gives `401 UNAUTHENTICATED` and logs a short reason, never the token itself. If Google's
+keys can't be fetched and none are cached, requests fail with `500 INTERNAL_ERROR`
+instead of a misleading 401.
+
+The checks use `google-auth`, which the Firestore client already depends on, so no new
+packages are needed. The Firebase Admin SDK would pull in many more. Revoked tokens are
+not detected, because that would need an extra call to Firebase on every request. A
+revoked token stays valid until it expires (at most one hour).
 
 ## Tests and linting
 
@@ -97,9 +124,9 @@ full list with defaults. The most important ones:
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `AUTH_DISABLED` | `false` | Debug mode, tokens are not verified. Currently required to be `true`. |
+| `AUTH_DISABLED` | `false` | `true` = debug mode for testing, tokens are not verified |
 | `GOOGLE_APPLICATION_CREDENTIALS` | (none) | Path to the service account key file |
-| `GOOGLE_CLOUD_PROJECT` | from the key | Firebase/GCP project ID |
+| `GOOGLE_CLOUD_PROJECT` | from the key | Firebase/GCP project ID, also used for token verification |
 | `FIRESTORE_DATABASE` | `(default)` | Firestore database name |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:5173` | Comma-separated frontend origins |
 | `ITEM_LIMIT` | `200` | Max items per user |
@@ -118,7 +145,7 @@ src/shopping_list/
 ├── config.py            Settings from environment variables
 ├── errors.py            ErrorCode, ApiError, uniform JSON error responses
 ├── middleware.py        request ID, CORS, 500 guard, body size limit
-├── auth.py              Authorization header → uid (debug mode only for now)
+├── auth.py              Authorization header → uid (Firebase ID token or debug mode)
 ├── rate_limit.py        in-memory per-uid rate limiter (general + ai buckets)
 ├── models.py            request/response schemas from openapi.yaml
 ├── dependencies.py      JSON body parsing, repository/service providers
