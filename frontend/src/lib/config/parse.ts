@@ -5,13 +5,13 @@
  * which SvelteKit evaluates at startup to validate the configuration.
  */
 
-export const AUTH_MODES = ['debug'] as const;
+export const AUTH_MODES = ['firebase', 'debug'] as const;
 /**
  * How users sign in.
+ * - `firebase`: Firebase Authentication with email and password. Needs
+ *   `PUBLIC_FIREBASE_API_KEY`.
  * - `debug`: no real authentication. Works only with a backend that runs with
  *   `AUTH_DISABLED=true`. Never use in production.
- *
- * `firebase` will be added together with Firebase Authentication.
  */
 export type AuthMode = (typeof AUTH_MODES)[number];
 
@@ -50,4 +50,29 @@ export function parseAuthMode(value: string | undefined): AuthMode {
 		);
 	}
 	return mode;
+}
+
+/**
+ * Validates the Firebase web API key. Returns `undefined` if it is not set, because
+ * it is only needed for the `firebase` auth mode (see `requireFirebaseApiKey`).
+ *
+ * The web API key is not a secret: every browser that opens the app receives it. It
+ * only identifies the Firebase project.
+ */
+export function parseFirebaseApiKey(value: string | undefined): string | undefined {
+	const raw = value?.trim();
+	if (!raw) return undefined;
+	if (!/^[A-Za-z0-9_-]+$/.test(raw)) {
+		throw new Error('PUBLIC_FIREBASE_API_KEY contains invalid characters');
+	}
+	return raw;
+}
+
+/** Checks the settings that depend on each other. Returns the key for the `firebase` mode. */
+export function requireFirebaseApiKey(mode: AuthMode, apiKey: string | undefined): string | null {
+	if (mode !== 'firebase') return null;
+	if (!apiKey) {
+		throw new Error('PUBLIC_FIREBASE_API_KEY must be set when PUBLIC_AUTH_MODE is "firebase"');
+	}
+	return apiKey;
 }

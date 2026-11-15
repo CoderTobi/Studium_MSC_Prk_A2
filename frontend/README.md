@@ -16,7 +16,7 @@ the app shell and the configuration.
 | AI recommendations (prompt, select, accept, discard, disclaimer) | done                                                                       |
 | Error handling for all API error codes                           | done                                                                       |
 | Impressum                                                        | done, with **fictitious placeholder data** in `src/lib/legal/impressum.ts` |
-| Authentication                                                   | debug mode only (`PUBLIC_AUTH_MODE=debug`), Firebase follows               |
+| Authentication                                                   | done: Firebase Authentication (email and password), plus a debug mode      |
 
 ## Setup
 
@@ -33,20 +33,22 @@ Start the backend first (see [backend/README.md](../backend/README.md)), then:
 ```bash
 npm run dev                  # http://localhost:5173
 ```
+
 After that you should be able to acces it from the browser in VS Code.
 If you want to open it in a different browser on the host and can't acces the page, you might need to start it in host mode instead:
+
 ```bash
 npm run dev:host                  # http://localhost:5173
 ```
 
-In debug mode you sign in with any username (letters, digits, `-`, `_`). Each
-username has its own list. This needs a backend running with `AUTH_DISABLED=true`.
+With `PUBLIC_AUTH_MODE=firebase` you sign in or create an account with email and
+password, see [Authentication](#authentication).
 
 Production build:
 
 ```bash
 npm run build
-PUBLIC_BACKEND_URL=http://localhost:8000 PUBLIC_AUTH_MODE=debug node build   # port 3000
+node --env-file=.env build   # port 3000
 ```
 
 ## Configuration
@@ -55,11 +57,12 @@ Environment variables, read **when the server starts**, not at build time. They 
 declared and validated in [`src/env.ts`](src/env.ts). The server refuses to start
 with an invalid value.
 
-| Variable             | Example                 | Meaning                                                                                          |
-| -------------------- | ----------------------- | ------------------------------------------------------------------------------------------------ |
-| `PUBLIC_BACKEND_URL` | `http://localhost:8000` | Backend base URL, **without** `/api/v1`                                                          |
-| `PUBLIC_AUTH_MODE`   | `debug`                 | How users sign in. Only `debug` exists for now (no real authentication, never use in production) |
-| `PORT`, `HOST`       | `3000`, `0.0.0.0`       | Only for `node build`, see [adapter-node](https://svelte.dev/docs/kit/adapter-node)              |
+| Variable                  | Example                 | Meaning                                                                                                         |
+| ------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `PUBLIC_BACKEND_URL`      | `http://localhost:8000` | Backend base URL, **without** `/api/v1`                                                                         |
+| `PUBLIC_AUTH_MODE`        | `firebase`              | How users sign in: `firebase` (email and password) or `debug` (no real authentication, never use in production) |
+| `PUBLIC_FIREBASE_API_KEY` | `AIza…`                 | Web API key of the Firebase project. Required for `PUBLIC_AUTH_MODE=firebase`                                   |
+| `PORT`, `HOST`            | `3000`, `0.0.0.0`       | Only for `node build`, see [adapter-node](https://svelte.dev/docs/kit/adapter-node)                             |
 
 The backend must allow the frontend's origin in `CORS_ALLOWED_ORIGINS`
 (`http://localhost:5173` for `npm run dev`, `http://localhost:3000` for `node build`).
@@ -83,7 +86,7 @@ compiler then points to every place that has to follow the change.
 ```
 src/
 ├── env.ts                     runtime environment variables (validated on startup)
-├── hooks.server.ts            security headers, CSP connect-src for the backend URL
+├── hooks.server.ts            security headers, CSP connect-src (backend URL, Firebase)
 ├── lib/
 │   ├── config/                parsing + typed access to the configuration
 │   ├── api/                   the only code that knows about HTTP
@@ -94,7 +97,7 @@ src/
 │   │   ├── validate.ts        runtime checks of successful responses
 │   │   ├── items.ts, recommendations.ts   one function per endpoint
 │   │   └── limits.ts          API limits for instant feedback in forms
-│   ├── auth/                  AuthService interface + debug implementation
+│   ├── auth/                  AuthService interface, Firebase + debug implementation
 │   ├── services.ts            composition root: creates auth + api and wires them
 │   ├── stores/                page state as Svelte 5 rune classes
 │   ├── components/            UI components (layout, items, recommendations, auth)
@@ -135,23 +138,47 @@ Imports inside the app use the `#lib/…` subpath import (SvelteKit 3's replacem
   Discarding happens only in the frontend.
 - Item names and suggestions are always rendered as text, never as HTML.
 
-## Adding Firebase Authentication
+## Authentication
 
-The app only depends on the `AuthService` interface (`src/lib/auth/types.ts`), so
-adding Firebase does not touch the API client, the stores or the pages:
+`PUBLIC_AUTH_MODE` selects one of two implementations of the `AuthService` interface
+(`src/lib/auth/types.ts`). The API client, the stores and the pages only use that
+interface.
 
-1. `npm install firebase` and add the Firebase web config as `PUBLIC_FIREBASE_*`
-   variables in `src/env.ts` and `.env.example`.
-2. Add `'firebase'` to `AUTH_MODES` in `src/lib/config/parse.ts`.
-3. Implement `FirebaseAuthService` in `src/lib/auth/firebase.svelte.ts`:
-   - `init()` waits for the first `onAuthStateChanged`
-   - `getIdToken()` returns `currentUser.getIdToken()`, which refreshes it automatically
-   - `signOut()` calls Firebase's `signOut`
-4. Add it to `AppAuthService` and `createAuthService` in `src/lib/auth/index.ts`.
-5. Add a sign-in form component for the `firebase` mode in `routes/login/+page.svelte`.
-6. Add the Firebase endpoints (`https://identitytoolkit.googleapis.com`,
-   `https://securetoken.googleapis.com`) to `connect-src` in `src/hooks.server.ts`. For
-   sign-in with a popup, also allow the auth domain in `frame-src`.
+### `firebase`
+
+Users sign in with email and password, or create an account on the login page.
+
+Setup:
+
+1. In the Firebase console, enable the **Email/Password** provider (Authentication >
+   Sign-in method).
+2. Copy the web API key (Project settings > General > Your apps > Web app > `apiKey`)
+   into `PUBLIC_FIREBASE_API_KEY` in `.env`. The key is not a secret, every browser
+   that opens the app receives it, but it still belongs in `.env` and not in git.
+3. Run the backend with `AUTH_DISABLED=false` for the **same** Firebase project.
+
+How it works:
+
+- `src/lib/auth/firebase-sdk.ts` is the only file that imports the Firebase JS SDK
+  (`firebase/app` and `firebase/auth`). It is loaded on demand, so the debug mode
+  never downloads it.
+- Firebase keeps the session in the browser (IndexedDB) until the user signs out,
+  and refreshes the ID token, which is valid for one hour, by itself.
+- `FirebaseAuthService.getIdToken()` returns that token for the `Authorization`
+  header. The backend verifies it on every request.
+- Firebase's error codes are mapped to user-safe messages in
+  `src/lib/auth/firebase-errors.ts`. A wrong email and a wrong password give the same
+  message.
+- The browser talks to `https://identitytoolkit.googleapis.com` (sign-in, sign-up)
+  and `https://securetoken.googleapis.com` (token refresh). Both are added to the
+  CSP's `connect-src` in `src/hooks.server.ts`, only in this mode.
+- There is no password reset and no email verification.
+
+### `debug`
+
+You sign in with any username (letters, digits, `-`, `_`), without a password. Each
+username has its own list. This needs a backend running with `AUTH_DISABLED=true`
+and must never be used in production.
 
 ## Tests
 
@@ -160,15 +187,16 @@ npm test
 ```
 
 The unit tests cover the API client (headers, error parsing, timeouts, network
-errors, invalid responses), the endpoint functions, the limits, the debug token and
-auth service, the configuration parsing, and both stores (with a fake API).
+errors, invalid responses), the endpoint functions, the limits, the Firebase auth
+service (with a fake SDK) and its error messages, the debug token and auth service, the configuration parsing, and both stores (with a fake API).
 
 ## Docker
 
 ```bash
 docker build -t shopping-list-frontend frontend/
 docker run --rm -p 3000:3000 \
-  -e PUBLIC_BACKEND_URL=http://localhost:8000 -e PUBLIC_AUTH_MODE=debug \
+  -e PUBLIC_BACKEND_URL=http://localhost:8000 \
+  -e PUBLIC_AUTH_MODE=firebase -e PUBLIC_FIREBASE_API_KEY=<web API key> \
   shopping-list-frontend
 ```
 

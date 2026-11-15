@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DebugSignInForm from '#lib/components/auth/DebugSignInForm.svelte';
+	import FirebaseSignInForm from '#lib/components/auth/FirebaseSignInForm.svelte';
 	import { auth } from '#lib/services.ts';
 
 	const onSignedIn = () => void goto(resolve('/(app)'), { replaceState: true });
@@ -27,8 +28,10 @@
 	{/if}
 
 	<div class="card">
-		<!-- One sign-in form per auth mode. Add the Firebase form here. -->
-		{#if auth.mode === 'debug'}
+		<!-- One sign-in form per auth mode. -->
+		{#if auth.mode === 'firebase'}
+			<FirebaseSignInForm {auth} {onSignedIn} />
+		{:else if auth.mode === 'debug'}
 			<DebugSignInForm {auth} {onSignedIn} />
 		{/if}
 	</div>

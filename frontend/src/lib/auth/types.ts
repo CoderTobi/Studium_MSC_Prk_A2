@@ -16,7 +16,7 @@ export type SignOutReason = 'user' | 'session-expired';
  * without changing them.
  *
  * Signing in is not part of it, because every implementation signs in differently
- * (username in debug mode, email/password or Google with Firebase). Each mode has
+ * (username in debug mode, email and password with Firebase). Each mode has
  * its own sign-in form, see `routes/login`.
  */
 export interface AuthService {

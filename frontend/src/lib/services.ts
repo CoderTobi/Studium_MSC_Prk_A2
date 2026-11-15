@@ -8,7 +8,7 @@ import { createApi } from '#lib/api/index.ts';
 import { createAuthService } from '#lib/auth/index.ts';
 import { config } from '#lib/config/index.ts';
 
-export const auth = createAuthService(config.authMode);
+export const auth = createAuthService(config);
 
 export const api = createApi({
 	baseUrl: config.apiBaseUrl,
