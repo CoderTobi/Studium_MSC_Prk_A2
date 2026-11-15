@@ -33,6 +33,11 @@ Start the backend first (see [backend/README.md](../backend/README.md)), then:
 ```bash
 npm run dev                  # http://localhost:5173
 ```
+After that you should be able to acces it from the browser in VS Code.
+If you want to open it in a different browser on the host and can't acces the page, you might need to start it in host mode instead:
+```bash
+npm run dev:host                  # http://localhost:5173
+```
 
 In debug mode you sign in with any username (letters, digits, `-`, `_`). Each
 username has its own list. This needs a backend running with `AUTH_DISABLED=true`.
