@@ -3,6 +3,16 @@
 - See [backend](backend/README.md) for setup, configuration and running the backend
 - See [frontend](frontend/README.md) for setup, configuration and running the frontend
 - See [GH repo](https://github.com/CoderTobi/Studium_MSC_Prk_A2)
+## Deployment with Docker Compose
+- Ollama runs on the host OS, not in Docker
+    - Pull the model: `ollama pull <model>`
+    - On Linux, start it with `OLLAMA_HOST=0.0.0.0` so the backend container can reach it
+- Create `backend/.env` and `frontend/.env` from their `.env.example`
+- Put the Firestore service account key at `backend/secrets/firebase-service-account.json` and make it readable (`chmod 644`), the backend container runs as uid 10001
+- Optional: create `.env` from [.env.example](.env.example) to set ports and the URLs the browser uses
+    - Needed whenever the app is not opened via `localhost`, e.g. on a home server: `FRONTEND_ORIGIN=http://homeserver:3000` and `BACKEND_URL=http://homeserver:8000`
+- Start: `docker compose up -d --build`
+- Frontend: http://localhost:3000, backend: http://localhost:8000
 ## Devcontainer Setup
 - Install WSL 2
 - Install Distro (I use Debian, but I guess Ubuntu is fine too)
